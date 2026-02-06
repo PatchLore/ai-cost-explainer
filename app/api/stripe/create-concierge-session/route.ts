@@ -1,0 +1,47 @@
+import { NextRequest, NextResponse } from "next/server";
+import Stripe from "stripe";
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+
+export async function POST(req: NextRequest) {
+  try {
+    const { uploadId } = await req.json();
+    if (!uploadId) {
+      return NextResponse.json(
+        { error: "Missing uploadId" },
+        { status: 400 }
+      );
+    }
+
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? process.env.URL ?? "http://localhost:3000";
+
+    const session = await stripe.checkout.sessions.create({
+      line_items: [
+        {
+          price_data: {
+            currency: "usd",
+            product_data: {
+              name: "AI Cost Audit + Implementation Guide",
+              description: "Personal video analysis + code fixes",
+            },
+            unit_amount: 29900, // $299
+          },
+          quantity: 1,
+        },
+      ],
+      mode: "payment",
+      success_url: `${baseUrl}/dashboard/upload/${uploadId}?paid=true`,
+      cancel_url: `${baseUrl}/dashboard/upload/${uploadId}?canceled=true`,
+      metadata: { uploadId },
+    });
+
+    // Tier is set to concierge_pending in webhook after payment success
+    return NextResponse.json({ url: session.url });
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json(
+      { error: "Failed to create checkout session" },
+      { status: 500 }
+    );
+  }
+}
