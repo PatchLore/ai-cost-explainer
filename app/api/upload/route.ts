@@ -3,6 +3,7 @@ import { createServerSupabase } from "@/lib/supabase";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { parseOpenAICSV } from "@/lib/csv-parser";
 import { generateRecommendations } from "@/lib/recommendations";
+import { uploadRateLimit, getClientIp } from "@/lib/ratelimit";
 
 function computeSpendByDay(
   rawData: { timestamp: string; cost: number }[]
@@ -19,6 +20,17 @@ function computeSpendByDay(
 
 export async function POST(req: NextRequest) {
   try {
+    if (uploadRateLimit) {
+      const ip = getClientIp(req);
+      const { success } = await uploadRateLimit.limit(ip);
+      if (!success) {
+        return NextResponse.json(
+          { error: "Too many uploads. Please try again in a minute." },
+          { status: 429 }
+        );
+      }
+    }
+
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
     const userId = formData.get("userId") as string | null;
@@ -27,6 +39,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { error: "Missing file or userId" },
         { status: 400 }
+      );
+    }
+
+    const MAX_FILE_BYTES = 10 * 1024 * 1024; // 10MB
+    if (file.size > MAX_FILE_BYTES) {
+      return NextResponse.json(
+        { error: "File must be 10MB or smaller." },
+        { status: 413 }
       );
     }
 

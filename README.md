@@ -1,6 +1,8 @@
 # AI Cost Explainer
 
-Next.js 14 (App Router) + Supabase + Stripe + Resend. Analyze OpenAI usage CSVs with free automated recommendations and an optional $299 Concierge tier (manual expert review with Loom video + report).
+**What this app is:** A web app that helps teams understand and reduce their OpenAI API spend. Users sign in, upload an OpenAI usage CSV (drag-and-drop), and get an instant **free analysis**: charts (cost by model, spend over time) and automated recommendations (e.g. switch small GPT-4 calls to 3.5, batch requests, cache repeated prompts). There’s an optional **Concierge** tier: for $299 one-time, you (the operator) deliver a manual expert review—a personal Loom video walkthrough plus a written report and code snippets. The app handles Stripe checkout, notifies you when someone orders, gives you an admin page to paste the Loom URL and report, then emails the customer and surfaces the video and downloads in their dashboard.
+
+**Stack:** Next.js 14 (App Router), Supabase (Auth + DB + Storage), Stripe, Resend, Tailwind, Recharts.
 
 ## Setup order
 

@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { parseOpenAICSV } from "@/lib/csv-parser";
+import { useRouter } from "next/navigation";
+
+const MAX_FILE_BYTES = 10 * 1024 * 1024; // 10MB
 
 interface CSVUploaderProps {
   userId: string;
@@ -9,6 +11,7 @@ interface CSVUploaderProps {
 }
 
 export function CSVUploader({ userId, onComplete }: CSVUploaderProps) {
+  const router = useRouter();
   const [dragging, setDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -17,6 +20,10 @@ export function CSVUploader({ userId, onComplete }: CSVUploaderProps) {
   const uploadFile = useCallback(
     async (file: File) => {
       setError(null);
+      if (file.size > MAX_FILE_BYTES) {
+        setError("File must be 10MB or smaller.");
+        return;
+      }
       setUploading(true);
       try {
         const formData = new FormData();
@@ -28,14 +35,18 @@ export function CSVUploader({ userId, onComplete }: CSVUploaderProps) {
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error ?? "Upload failed");
-        onComplete(data.uploadId);
+        const uploadId = data.uploadId;
+        if (uploadId) {
+          onComplete(uploadId);
+          router.push(`/dashboard/upload/${uploadId}`);
+        }
       } catch (e) {
         setError(e instanceof Error ? e.message : "Upload failed");
       } finally {
         setUploading(false);
       }
     },
-    [userId, onComplete]
+    [userId, onComplete, router]
   );
 
   const onDrop = useCallback(
@@ -86,9 +97,9 @@ export function CSVUploader({ userId, onComplete }: CSVUploaderProps) {
           className="cursor-pointer text-slate-600 hover:text-slate-900"
         >
           {uploading
-            ? "Uploading..."
+            ? "Analyzing your usage..."
             : userId
-              ? "Drop your OpenAI usage CSV here, or click to browse"
+              ? "Drop your OpenAI usage CSV here (max 10MB), or click to browse"
               : "Sign in to upload"}
         </label>
       </div>

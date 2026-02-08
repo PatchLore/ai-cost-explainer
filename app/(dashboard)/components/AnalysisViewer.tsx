@@ -13,6 +13,7 @@ import {
   Legend,
 } from "recharts";
 import type { Recommendation } from "@/lib/recommendations";
+import { CopyButton } from "./CopyButton";
 
 interface AnalysisViewerProps {
   totalSpend: number;
@@ -160,9 +161,12 @@ export function AnalysisViewer({
                 </p>
                 <p className="text-sm text-slate-600">Action: {r.action}</p>
                 {r.codeSnippet && (
-                  <pre className="mt-2 overflow-x-auto rounded bg-slate-800 p-2 text-xs text-slate-100">
-                    {r.codeSnippet}
-                  </pre>
+                  <div className="relative mt-2">
+                    <CopyButton codeString={r.codeSnippet} />
+                    <pre className="overflow-x-auto rounded bg-slate-800 p-2 pr-10 text-xs text-slate-100">
+                      {r.codeSnippet}
+                    </pre>
+                  </div>
                 )}
               </li>
             ))}

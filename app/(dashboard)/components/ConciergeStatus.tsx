@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { CsvUploadTier } from "@/lib/types";
+import { CopyButton } from "./CopyButton";
 
 export interface CodeSnippetDisplay {
   title: string;
@@ -128,9 +129,12 @@ export function ConciergeStatus({
                       Download
                     </button>
                   </div>
-                  <pre className="mt-2 max-h-40 overflow-auto rounded bg-slate-800 p-2 text-xs text-slate-100">
-                    {s.code}
-                  </pre>
+                  <div className="relative mt-2">
+                    <CopyButton codeString={s.code} />
+                    <pre className="max-h-40 overflow-auto rounded bg-slate-800 p-2 pr-10 text-xs text-slate-100">
+                      {s.code}
+                    </pre>
+                  </div>
                 </li>
               ))}
             </ul>
