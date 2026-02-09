@@ -133,11 +133,11 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ uploadId: upload.id });
-  } catch (err) {
-    console.error(err);
-    return NextResponse.json(
-      { error: "Upload failed" },
-      { status: 500 }
-    );
+  } catch (error) {
+    console.error("UPLOAD ERROR:", error);
+    return NextResponse.json({ 
+      error: "Failed to save upload", 
+      details: error instanceof Error ? error.message : String(error)
+    }, { status: 500 });
   }
 }
