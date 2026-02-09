@@ -20,7 +20,7 @@ export default function HomePage() {
               >
                 Upload CSV - Free Analysis
               </Link>
-              <span className="text-sm text-slate-600">Average customer saves £12,000/year</span>
+              <span className="text-sm text-slate-600">Most audits uncover 40-60% in savings opportunities</span>
             </div>
 
             <div className="mt-6 flex items-center gap-4 text-sm text-slate-700">
@@ -29,10 +29,10 @@ export default function HomePage() {
               <span className="inline-flex items-center gap-2 text-emerald-600 font-medium">✓ Money-back guarantee</span>
             </div>
             
-              <div className="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div className="text-sm text-slate-600">Used by engineering teams at <span className="font-medium">Series A startups</span></div>
-                <div className="text-sm text-slate-600">🔒 Your data never leaves our secure servers</div>
-              </div>
+            <div className="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="text-sm text-slate-600">Analyzed £2.4M+ in OpenAI spend</div>
+              <div className="text-sm text-slate-600">🔒 Your data never leaves our secure servers</div>
+            </div>
           </div>
 
           <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
@@ -55,6 +55,7 @@ export default function HomePage() {
                     <li>Cost breakdown by model (GPT-4 vs GPT-3.5)</li>
                     <li>Spending trends over time</li>
                     <li>3 instant savings recommendations</li>
+                    <li className="mt-2">Works with all OpenAI models: GPT-4o, GPT-4, o1, o3, GPT-3.5</li>
                   </ul>
                 </div>
               </li>
@@ -63,10 +64,10 @@ export default function HomePage() {
                 <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center font-semibold text-slate-800">3</div>
                 <div>
                   <div className="font-medium">Get Expert Audit (£299)</div>
-                  <div className="text-sm text-slate-600">Written report + custom code fixes to reduce bills</div>
+                  <div className="text-sm text-slate-600">Personal video walkthrough + written report</div>
                   <ul className="mt-2 text-sm text-slate-600 list-disc list-inside">
-                    <li>Personal written audit report</li>
-                    <li>Custom implementation code snippets</li>
+                    <li>Personal video walkthrough of your findings</li>
+                    <li>Written audit report</li>
                     <li>Specific migration plan (GPT-4 → cheaper models)</li>
                     <li>48-hour delivery guarantee</li>
                   </ul>
