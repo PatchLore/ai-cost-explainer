@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import type { CsvUploadTier } from "@/lib/types";
 import { CopyButton } from "./CopyButton";
 
@@ -56,24 +57,17 @@ export function ConciergeStatus({
 }: ConciergeStatusProps) {
   const [loading, setLoading] = useState(false);
   const snippets = Array.isArray(codeSnippets) ? codeSnippets : [];
-
-  const startCheckout = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch("/api/stripe/create-concierge-session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ uploadId }),
-      });
-      const data = await res.json();
-      if (data.url) window.location.href = data.url;
-      else throw new Error(data.error ?? "Checkout failed");
-    } catch (e) {
-      alert(e instanceof Error ? e.message : "Checkout failed");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const searchParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+  // SSR-safe: fallback to next/navigation
+  let paid = false;
+  try {
+    // Try to use next/navigation if available
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    paid = useSearchParams?.()?.get("paid") === "true";
+  } catch {}
+  if (!paid && searchParams) {
+    paid = searchParams.get("paid") === "true";
+  }
 
   if (tier === "concierge_delivered") {
     return (
@@ -144,7 +138,7 @@ export function ConciergeStatus({
     );
   }
 
-  if (tier === "concierge_pending") {
+  if (tier === "concierge_pending" || paid) {
     return (
       <div className="rounded-lg border border-amber-200 bg-amber-50 p-6">
         <h3 className="font-semibold text-amber-800">
