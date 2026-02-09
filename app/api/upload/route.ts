@@ -81,6 +81,14 @@ export async function POST(req: NextRequest) {
 
     const sb = createServerSupabase();
 
+    const analysisData = {
+      recommendations,
+      spend_by_day: spendByDay,
+      total_spend: totalSpend,
+      total_requests: totalRequests,
+      top_models: topModels,
+    };
+
     const { data: upload, error: uploadError } = await sb
       .from("csv_uploads")
       .insert({
@@ -88,17 +96,20 @@ export async function POST(req: NextRequest) {
         filename: file.name,
         storage_path: null,
         file_size: file.size,
-        provider: "openai",
-        status: "completed",
-        raw_data: rawData,
+        content_type: file.type || "text/csv",
+        original_name: file.name,
+        analysis_data: analysisData,
+        concierge_status: "pending",
+        stripe_checkout_id: null,
       })
       .select("id")
       .single();
 
     if (uploadError) {
-      console.error(uploadError);
+      console.error("UPLOAD INSERT ERROR:", uploadError);
+      const message = uploadError.message ?? String(uploadError);
       return NextResponse.json(
-        { error: "Failed to save upload" },
+        { error: message, details: uploadError },
         { status: 500 }
       );
     }
@@ -112,7 +123,13 @@ export async function POST(req: NextRequest) {
         upsert: true,
       });
 
-    if (!storageError) {
+    if (storageError) {
+      console.error("STORAGE ERROR:", storageError);
+      await sb
+        .from("csv_uploads")
+        .update({ concierge_status: "storage_failed" })
+        .eq("id", upload.id);
+    } else {
       await sb
         .from("csv_uploads")
         .update({ storage_path: storagePath })
