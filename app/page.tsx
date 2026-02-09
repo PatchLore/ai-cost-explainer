@@ -30,7 +30,7 @@ export default function HomePage() {
             </div>
             
             <div className="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div className="text-sm text-slate-600">Analyzed £2.4M+ in OpenAI spend</div>
+              <div className="text-sm text-slate-600">Instant analysis of your OpenAI spending patterns</div>
               <div className="text-sm text-slate-600">🔒 Your data never leaves our secure servers</div>
             </div>
           </div>
