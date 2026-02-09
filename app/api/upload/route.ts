@@ -89,12 +89,35 @@ export async function POST(req: NextRequest) {
       top_models: topModels,
     };
 
+    // Upload to storage first. If storage fails, abort early and return error.
+    const arrayBuffer = await file.arrayBuffer();
+    const storagePath = `${userId}/${Date.now()}-${file.name}`;
+    const { data: storageData, error: storageError } = await sb.storage
+      .from("csv-uploads")
+      .upload(storagePath, arrayBuffer, {
+        contentType: file.type || "text/csv",
+        upsert: true,
+      });
+
+    if (storageError) {
+      console.error("STORAGE UPLOAD ERROR:", storageError);
+      const storageMessage = (storageError as any).message ?? String(storageError);
+      return NextResponse.json(
+        { error: "Storage upload failed", details: storageMessage },
+        { status: 500 }
+      );
+    }
+
+    // storageData.path should contain the uploaded file path; fall back to our path if absent
+    const finalStoragePath = (storageData && (storageData as any).path) || storagePath;
+
+    // Now insert the DB row with the confirmed storage path
     const { data: upload, error: uploadError } = await sb
       .from("csv_uploads")
       .insert({
         user_id: userId,
         filename: file.name,
-        storage_path: null,
+        storage_path: finalStoragePath,
         file_size: file.size,
         content_type: file.type || "text/csv",
         original_name: file.name,
@@ -107,33 +130,11 @@ export async function POST(req: NextRequest) {
 
     if (uploadError) {
       console.error("UPLOAD INSERT ERROR:", uploadError);
-      const message = uploadError.message ?? String(uploadError);
+      const message = (uploadError as any).message ?? String(uploadError);
       return NextResponse.json(
         { error: message, details: uploadError },
         { status: 500 }
       );
-    }
-
-    const storagePath = `${userId}/${upload.id}/${file.name}`;
-    const arrayBuffer = await file.arrayBuffer();
-    const { error: storageError } = await sb.storage
-      .from("csv-uploads")
-      .upload(storagePath, arrayBuffer, {
-        contentType: file.type || "text/csv",
-        upsert: true,
-      });
-
-    if (storageError) {
-      console.error("STORAGE ERROR:", storageError);
-      await sb
-        .from("csv_uploads")
-        .update({ concierge_status: "storage_failed" })
-        .eq("id", upload.id);
-    } else {
-      await sb
-        .from("csv_uploads")
-        .update({ storage_path: storagePath })
-        .eq("id", upload.id);
     }
 
     const { error: analysisError } = await sb.from("analysis_results").insert({
@@ -152,9 +153,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ uploadId: upload.id });
   } catch (error) {
     console.error("UPLOAD ERROR:", error);
-    return NextResponse.json({ 
-      error: "Failed to save upload", 
-      details: error instanceof Error ? error.message : String(error)
-    }, { status: 500 });
+    if (error instanceof Error) {
+      return NextResponse.json(
+        { error: error.message, stack: error.stack },
+        { status: 500 }
+      );
+    }
+    return NextResponse.json(
+      { error: String(error) },
+      { status: 500 }
+    );
   }
 }
