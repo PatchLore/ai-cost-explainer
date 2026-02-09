@@ -60,23 +60,24 @@ export default function DashboardPage() {
       <div className="space-y-4">
         <h1 className="text-2xl font-bold text-slate-800">Upload History</h1>
 
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div className="rounded-lg border border-slate-200 bg-white p-4">
-            <div className="text-sm text-slate-600">Free analysis</div>
-            <div className="mt-1 font-medium text-slate-800">Upload your CSV for instant recommendations</div>
+        <div className="grid md:grid-cols-2 gap-6 mb-8">
+          <div className="bg-slate-50 p-6 rounded-lg">
+            <h3 className="font-semibold text-lg mb-3">Free Analysis Includes:</h3>
+            <ul className="space-y-2 text-sm text-slate-600">
+              <li>• Cost breakdown by model (GPT-4 vs GPT-3.5)</li>
+              <li>• Spending trends over time</li>
+              <li>• 3 instant savings recommendations</li>
+            </ul>
           </div>
 
-          <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 flex items-center gap-4">
-            <div>
-              <div className="text-sm text-slate-600">Expert Audit</div>
-              <div className="font-semibold">£299 — 48-hour delivery</div>
-            </div>
-            <Link
-              href="/dashboard?upgrade=concierge"
-              className="ml-auto rounded bg-amber-600 px-4 py-2 text-white text-sm font-medium hover:bg-amber-700"
-            >
-              Get Expert Audit
-            </Link>
+          <div className="bg-blue-50 p-6 rounded-lg border border-blue-200">
+            <h3 className="font-semibold text-lg mb-3 text-blue-900">Expert Audit (£299) Includes:</h3>
+            <ul className="space-y-2 text-sm text-blue-800">
+              <li>• Personal written audit report</li>
+              <li>• Specific migration plan (GPT-4 → cheaper models)</li>
+              <li>• 48-hour delivery guarantee</li>
+            </ul>
+            <p className="mt-3 text-sm text-blue-700">Note: Upgrade button available after you upload and view an analysis.</p>
           </div>
         </div>
 
