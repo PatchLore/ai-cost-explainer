@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabase } from "@/lib/supabase";
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export interface CodeSnippetInput {
   title: string;
   language: string;
@@ -103,7 +101,8 @@ export async function POST(req: NextRequest) {
       // ignore
     }
 
-    if (customerEmail && resend) {
+    if (customerEmail && process.env.RESEND_API_KEY) {
+      const resend = new Resend(process.env.RESEND_API_KEY);
       await resend.emails.send({
         from: process.env.RESEND_FROM ?? "onboarding@resend.dev",
         to: customerEmail,
