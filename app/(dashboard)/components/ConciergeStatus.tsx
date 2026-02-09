@@ -161,18 +161,18 @@ export function ConciergeStatus({
   return (
     <div className="rounded-lg border border-slate-200 bg-slate-50 p-6">
       <h3 className="mb-2 font-semibold text-slate-800">
-        Get Expert Analysis — $299
+        Get Expert Audit — £299
       </h3>
       <p className="mb-4 text-sm text-slate-600">
-        Personal video walkthrough of your usage, custom code fixes, and an
-        implementation guide.
+        Personal written audit, custom code snippets, and a migration plan to
+        reduce your OpenAI spend.
       </p>
       <button
         onClick={startCheckout}
         disabled={loading}
         className="rounded bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700 disabled:opacity-50"
       >
-        {loading ? "Redirecting..." : "Get Expert Analysis"}
+        {loading ? "Redirecting..." : "Get Expert Audit — Reduce your bill"}
       </button>
     </div>
   );

@@ -28,6 +28,11 @@ export default function HomePage() {
               <span className="inline-flex items-center gap-2 text-emerald-600 font-medium">✓ 48-hour delivery</span>
               <span className="inline-flex items-center gap-2 text-emerald-600 font-medium">✓ Money-back guarantee</span>
             </div>
+            
+              <div className="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div className="text-sm text-slate-600">Used by engineering teams at <span className="font-medium">Series A startups</span></div>
+                <div className="text-sm text-slate-600">🔒 Your data never leaves our secure servers</div>
+              </div>
           </div>
 
           <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
@@ -46,6 +51,11 @@ export default function HomePage() {
                 <div>
                   <div className="font-medium">Upload</div>
                   <div className="text-sm text-slate-600">See instant cost breakdown & 3 free recommendations</div>
+                  <ul className="mt-2 text-sm text-slate-600 list-disc list-inside">
+                    <li>Cost breakdown by model (GPT-4 vs GPT-3.5)</li>
+                    <li>Spending trends over time</li>
+                    <li>3 instant savings recommendations</li>
+                  </ul>
                 </div>
               </li>
 
@@ -54,6 +64,12 @@ export default function HomePage() {
                 <div>
                   <div className="font-medium">Get Expert Audit (£299)</div>
                   <div className="text-sm text-slate-600">Written report + custom code fixes to reduce bills</div>
+                  <ul className="mt-2 text-sm text-slate-600 list-disc list-inside">
+                    <li>Personal written audit report</li>
+                    <li>Custom implementation code snippets</li>
+                    <li>Specific migration plan (GPT-4 → cheaper models)</li>
+                    <li>48-hour delivery guarantee</li>
+                  </ul>
                 </div>
               </li>
             </ol>
@@ -65,6 +81,18 @@ export default function HomePage() {
               >
                 Get Expert Audit — £299
               </Link>
+            </div>
+          </div>
+        </div>
+        
+        <div className="mt-10 max-w-5xl mx-auto px-6">
+          <div className="rounded-lg border border-slate-200 bg-white p-6 flex flex-col md:flex-row items-center gap-6">
+            <div className="flex-1">
+              <h4 className="font-semibold text-slate-800">Sample Expert Report</h4>
+              <p className="mt-2 text-sm text-slate-600">Preview of the written audit you receive with the £299 Expert Audit.</p>
+            </div>
+            <div className="w-full md:w-64 h-40 bg-slate-100 rounded-md flex items-center justify-center text-slate-400">
+              <span>Report preview</span>
             </div>
           </div>
         </div>

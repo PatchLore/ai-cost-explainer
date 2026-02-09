@@ -99,7 +99,7 @@ export function CSVUploader({ userId, onComplete }: CSVUploaderProps) {
           {uploading
             ? "Analyzing your usage..."
             : userId
-              ? "Drop your OpenAI usage CSV here (max 10MB), or click to browse"
+              ? "Upload CSV — Free analysis (drop or click to select, max 10MB)"
               : "Sign in to upload"}
         </label>
       </div>
