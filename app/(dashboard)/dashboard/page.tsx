@@ -57,9 +57,31 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-2xl font-bold text-slate-800">Upload History</h1>
+      <div className="space-y-4">
+        <h1 className="text-2xl font-bold text-slate-800">Upload History</h1>
 
-      <CSVUploader userId={userId ?? ""} onComplete={onUploadComplete} />
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="rounded-lg border border-slate-200 bg-white p-4">
+            <div className="text-sm text-slate-600">Free analysis</div>
+            <div className="mt-1 font-medium text-slate-800">Upload your CSV for instant recommendations</div>
+          </div>
+
+          <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 flex items-center gap-4">
+            <div>
+              <div className="text-sm text-slate-600">Expert Audit</div>
+              <div className="font-semibold">£299 — 48-hour delivery</div>
+            </div>
+            <Link
+              href="/dashboard?upgrade=concierge"
+              className="ml-auto rounded bg-amber-600 px-4 py-2 text-white text-sm font-medium hover:bg-amber-700"
+            >
+              Get Expert Audit
+            </Link>
+          </div>
+        </div>
+
+        <CSVUploader userId={userId ?? ""} onComplete={onUploadComplete} />
+      </div>
 
       {loading ? (
         <p className="text-slate-500">Loading uploads...</p>
