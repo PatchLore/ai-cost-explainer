@@ -18,17 +18,15 @@ export async function POST(req: NextRequest) {
 
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? process.env.URL ?? "http://localhost:3000";
 
+    // TEMPORARY: Hardcoded $0.01 test price
+    // Change back to env var after testing
+    const priceId = 'price_1SyvEWGark2fn6AyTXKIR2Yl'; // $0.01 test price
+    console.log('Using hardcoded Price ID:', priceId);
+
     const session = await stripe.checkout.sessions.create({
       line_items: [
         {
-          price_data: {
-            currency: "usd",
-            product_data: {
-              name: "AI Cost Audit + Implementation Guide",
-              description: "Personal video analysis + code fixes",
-            },
-            unit_amount: 29900, // $299
-          },
+          price: priceId, // USE ENV VAR
           quantity: 1,
         },
       ],
