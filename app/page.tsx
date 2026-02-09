@@ -55,7 +55,7 @@ export default function HomePage() {
                   <div className="font-medium">Upload</div>
                   <div className="text-sm text-slate-600">See instant cost breakdown & 3 free recommendations</div>
                   <ul className="mt-2 text-sm text-slate-600 list-disc list-inside">
-                    <li>Cost breakdown by model (GPT-4 vs GPT-3.5)</li>
+                    <li>Cost breakdown by model</li>
                     <li>Spending trends over time</li>
                     <li>3 instant savings recommendations</li>
                     <li className="mt-2">Works with all OpenAI models</li>
