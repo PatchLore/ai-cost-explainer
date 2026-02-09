@@ -14,7 +14,7 @@ export function parseOpenAICSV(file: File): Promise<OpenAIUsageRow[]> {
       header: true,
       dynamicTyping: true,
       complete: (results) => {
-        const normalized = results.data.map((row: Record<string, unknown>) => ({
+        const normalized = results.data.map((row: any) => ({
           model: String(row["Model"] ?? row["model"] ?? ""),
           tokens_used: parseInt(String(row["Tokens"] ?? row["tokens_used"] ?? 0), 10),
           cost: parseFloat(String(row["Cost"] ?? row["cost"] ?? 0)),
