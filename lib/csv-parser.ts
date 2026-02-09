@@ -1,32 +1,35 @@
-import { parse } from "csv-parse/sync";
+import { parse } from 'csv-parse/sync';
 
-export interface OpenAIUsageRow {
+export interface ParsedCSVRow {
   model: string;
   tokens_used: number;
   cost: number;
   timestamp: string;
   request_type: string;
+  [key: string]: any;
 }
 
-export async function parseOpenAICSV(file: File): Promise<OpenAIUsageRow[]> {
+export function parseOpenAICSV(csvText: string): ParsedCSVRow[] {
   try {
-    const csvText = await file.text();
     const records = parse(csvText, {
       columns: true,
       skip_empty_lines: true,
-      cast: false, // Don't auto-cast; we'll handle type conversions manually
-    }) as any[];
+      cast: true,
+      trim: true,
+    });
 
-    const normalized = records.map((row: any) => ({
-      model: String(row["Model"] ?? row["model"] ?? ""),
-      tokens_used: parseInt(String(row["Tokens"] ?? row["tokens_used"] ?? 0), 10),
-      cost: parseFloat(String(row["Cost"] ?? row["cost"] ?? 0)),
-      timestamp: String(row["Timestamp"] ?? row["timestamp"] ?? ""),
-      request_type: String(row["Request Type"] ?? row["request_type"] ?? "unknown"),
+    // Normalize column names (OpenAI uses different cases)
+    return records.map((row: any) => ({
+      model: row['Model'] || row['model'] || '',
+      tokens_used: parseInt(row['Tokens'] || row['tokens_used'] || row['Total Tokens'] || 0),
+      cost: parseFloat(row['Cost'] || row['cost'] || 0),
+      timestamp: row['Timestamp'] || row['timestamp'] || row['Time'] || '',
+      request_type: row['Request Type'] || row['request_type'] || row['Operation'] || '',
+      // Keep raw data too
+      ...row
     }));
-
-    return normalized;
-  } catch (err) {
-    throw new Error(`Failed to parse CSV: ${err instanceof Error ? err.message : String(err)}`);
+  } catch (error) {
+    console.error('CSV Parse Error:', error);
+    throw new Error('Failed to parse CSV file. Please ensure it is a valid OpenAI usage export.');
   }
 }

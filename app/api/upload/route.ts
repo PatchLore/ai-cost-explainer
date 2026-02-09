@@ -58,7 +58,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const rawData = await parseOpenAICSV(file);
+    // Read file as text and parse
+    const csvText = await file.text();
+    const rawData = parseOpenAICSV(csvText);
     const recommendations = generateRecommendations(rawData);
     const spendByDay = computeSpendByDay(rawData);
 

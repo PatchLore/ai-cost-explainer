@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabase } from "@/lib/supabase";
 import { generateRecommendations } from "@/lib/recommendations";
-import type { OpenAIUsageRow } from "@/lib/csv-parser";
+import type { ParsedCSVRow } from "@/lib/csv-parser";
 
 export async function POST(req: NextRequest) {
   try {
@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const rawData = upload.raw_data as OpenAIUsageRow[];
+    const rawData = upload.raw_data as ParsedCSVRow[];
     if (!Array.isArray(rawData)) {
       return NextResponse.json(
         { error: "Invalid upload data" },
