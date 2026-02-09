@@ -12,6 +12,9 @@ export default function HomePage() {
             <p className="mt-4 text-lg text-slate-700">
               Upload your usage CSV. Get instant analysis + expert audit.
             </p>
+            <p className="mt-3 text-sm text-slate-600">
+              Written report + custom code fixes, reduce bills: Personal video walkthrough + written report
+            </p>
 
             <div className="mt-6 flex items-center gap-4">
               <Link
@@ -55,7 +58,7 @@ export default function HomePage() {
                     <li>Cost breakdown by model (GPT-4 vs GPT-3.5)</li>
                     <li>Spending trends over time</li>
                     <li>3 instant savings recommendations</li>
-                    <li className="mt-2">Works with all OpenAI models: GPT-4o, GPT-4, o1, o3, GPT-3.5</li>
+                    <li className="mt-2">Works with all OpenAI models</li>
                   </ul>
                 </div>
               </li>
@@ -66,9 +69,10 @@ export default function HomePage() {
                   <div className="font-medium">Get Expert Audit (£299)</div>
                   <div className="text-sm text-slate-600">Personal video walkthrough + written report</div>
                   <ul className="mt-2 text-sm text-slate-600 list-disc list-inside">
-                    <li>Personal video walkthrough of your findings</li>
-                    <li>Written audit report</li>
-                    <li>Specific migration plan (GPT-4 → cheaper models)</li>
+                    <li>Personal video walkthrough (AI avatar or recorded)</li>
+                    <li>Written markdown report</li>
+                    <li>Custom code fixes (caching, batching, model routing)</li>
+                    <li>Specific implementation guide</li>
                     <li>48-hour delivery guarantee</li>
                   </ul>
                 </div>
