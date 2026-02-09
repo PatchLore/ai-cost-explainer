@@ -18,26 +18,39 @@ export async function POST(req: NextRequest) {
 
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? process.env.URL ?? "http://localhost:3000";
 
-    // TEMPORARY: Hardcoded $0.01 test price
-    // Change back to env var after testing
-    const priceId = 'price_1SyvEWGark2fn6AyTXKIR2Yl'; // $0.01 test price
-    console.log('Using hardcoded Price ID:', priceId);
+    const priceId = process.env.NEXT_PUBLIC_STRIPE_PRICE_ID;
+    console.log('Using Stripe Price ID from env:', priceId);
 
-    const session = await stripe.checkout.sessions.create({
-      line_items: [
-        {
-          price: priceId,
-          quantity: 1,
-        },
-      ],
-      mode: "payment",
-      success_url: `${baseUrl}/dashboard/upload/${uploadId}?paid=true`,
-      cancel_url: `${baseUrl}/dashboard/upload/${uploadId}?canceled=true`,
-      metadata: { uploadId },
-    });
+    if (!priceId) {
+      console.error('ERROR: NEXT_PUBLIC_STRIPE_PRICE_ID is not set');
+      return NextResponse.json(
+        { error: "Stripe Price ID not configured" },
+        { status: 500 }
+      );
+    }
 
-    // Tier is set to concierge_pending in webhook after payment success
-    return NextResponse.json({ url: session.url });
+    try {
+      const session = await stripe.checkout.sessions.create({
+        line_items: [
+          {
+            price: priceId,
+            quantity: 1,
+          },
+        ],
+        mode: "payment",
+        success_url: `${baseUrl}/dashboard/upload/${uploadId}?paid=true`,
+        cancel_url: `${baseUrl}/dashboard/upload/${uploadId}?canceled=true`,
+        metadata: { uploadId },
+      });
+      // Tier is set to concierge_pending in webhook after payment success
+      return NextResponse.json({ url: session.url });
+    } catch (stripeErr: any) {
+      console.error('STRIPE ERROR:', stripeErr);
+      return NextResponse.json(
+        { error: stripeErr?.message || String(stripeErr) || "Failed to create checkout session" },
+        { status: 500 }
+      );
+    }
   } catch (err: any) {
     console.error('STRIPE ERROR:', err);
     return NextResponse.json(
