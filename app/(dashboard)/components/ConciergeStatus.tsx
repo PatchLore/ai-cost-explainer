@@ -69,6 +69,7 @@ export function ConciergeStatus({
     paid = searchParams.get("paid") === "true";
   }
 
+  // Show delivered state
   if (tier === "concierge_delivered") {
     return (
       <div className="rounded-lg border border-green-200 bg-green-50 p-6">
@@ -138,6 +139,7 @@ export function ConciergeStatus({
     );
   }
 
+  // Show pending state (after payment or if tier is pending)
   if (tier === "concierge_pending" || paid) {
     return (
       <div className="rounded-lg border border-amber-200 bg-amber-50 p-6">
@@ -151,6 +153,25 @@ export function ConciergeStatus({
       </div>
     );
   }
+
+  // Show payment button only if not paid and not pending/delivered
+  const startCheckout = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/stripe/create-concierge-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ uploadId }),
+      });
+      const data = await res.json();
+      if (data.url) window.location.href = data.url;
+      else throw new Error(data.error ?? "Checkout failed");
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Checkout failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="rounded-lg border border-slate-200 bg-slate-50 p-6">
