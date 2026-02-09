@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     const session = await stripe.checkout.sessions.create({
       line_items: [
         {
-          price: priceId, // USE ENV VAR
+          price: priceId,
           quantity: 1,
         },
       ],
@@ -38,10 +38,10 @@ export async function POST(req: NextRequest) {
 
     // Tier is set to concierge_pending in webhook after payment success
     return NextResponse.json({ url: session.url });
-  } catch (err) {
-    console.error(err);
+  } catch (err: any) {
+    console.error('STRIPE ERROR:', err);
     return NextResponse.json(
-      { error: "Failed to create checkout session" },
+      { error: err?.message || String(err) || "Failed to create checkout session" },
       { status: 500 }
     );
   }
