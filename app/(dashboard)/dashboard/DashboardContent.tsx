@@ -30,7 +30,13 @@ export function DashboardContent({ user }: DashboardContentProps) {
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
 
-      if (!error) setUploads(data ?? []);
+      if (!error) {
+        // Deduplicate uploads by ID to prevent duplicate entries
+        const uniqueUploads = data ? 
+          Array.from(new Map(data.map(u => [u.id, u])).values()) : 
+          [];
+        setUploads(uniqueUploads);
+      }
       setLoading(false);
     }
     init();
