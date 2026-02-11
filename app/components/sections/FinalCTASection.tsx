@@ -2,17 +2,14 @@
 import { Upload, Lock } from 'lucide-react'
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
+import Link from "next/link"
 
 // Utility for tailwind class merging
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-interface FinalCTASectionProps {
-  onUploadClick: () => void
-}
-
-export const FinalCTASection = ({ onUploadClick }: FinalCTASectionProps) => {
+export const FinalCTASection = () => {
   return (
     <section className="py-20 lg:py-32 relative overflow-hidden">
       {/* Background Glow */}
@@ -29,13 +26,12 @@ export const FinalCTASection = ({ onUploadClick }: FinalCTASectionProps) => {
           <p className="text-lg text-gray-400 mb-8">
             Takes 30 seconds. No signup required for the free analysis.
           </p>
-          <button
-            onClick={onUploadClick}
-            className="inline-flex items-center gap-2 px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl transition-colors pulse-cta mb-6"
-          >
-            <Upload className="w-5 h-5" />
-            Start Free Analysis
-          </button>
+          <Link href="/login">
+            <button className="inline-flex items-center gap-2 px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl transition-colors pulse-cta mb-6">
+              <Upload className="w-5 h-5" />
+              Start Free Analysis
+            </button>
+          </Link>
           <p className="flex items-center justify-center gap-2 text-sm text-gray-500">
             <Lock className="w-4 h-4" />
             Your file is processed in memory and never stored.

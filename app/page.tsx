@@ -29,19 +29,6 @@ export default function HomePage() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Left Content */}
             <div className="space-y-8 text-center lg:text-left">
-              {/* Badge with Avatars */}
-              <div className="flex items-center justify-center lg:justify-start gap-4 bg-slate-900/40 backdrop-blur-md border border-slate-800/60 rounded-full px-6 py-3 shadow-lg shadow-black/30 inline-flex">
-                <span className="text-sm font-medium text-slate-300">Trusted by 100+ engineering teams</span>
-                <div className="flex -space-x-2">
-                  {[1, 2, 3, 4, 5].map((i) => (
-                    <Avatar key={i} className="w-8 h-8 border-2 border-slate-900">
-                      <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${i}`} />
-                      <AvatarFallback>{String.fromCharCode(64 + i)}</AvatarFallback>
-                    </Avatar>
-                  ))}
-                </div>
-              </div>
-
               {/* Headline */}
               <h1 className="text-6xl font-bold text-white text-center lg:text-left max-w-4xl mx-auto lg:mx-0 text-gradient">
                 Cut Your AI Bills by 40% Without Changing Your Code
@@ -139,7 +126,7 @@ export default function HomePage() {
       <SecuritySection />
       <TestimonialsSection />
       <FAQSection />
-      <FinalCTASection onUploadClick={() => window.location.href = "/dashboard"} />
+      <FinalCTASection />
     </>
   );
 }
