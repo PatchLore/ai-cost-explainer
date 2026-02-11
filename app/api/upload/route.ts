@@ -71,6 +71,37 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const sb = createServerSupabase();
+
+    // Check if user has already used free analysis
+    const { data: existingFreeUploads, error: countError } = await sb
+      .from('csv_uploads')
+      .select('id')
+      .eq('user_id', user.id)
+      .is('stripe_checkout_id', null) // NULL means free tier (no payment)
+      .limit(1)
+
+    if (countError) {
+      console.error('Free upload count error:', countError);
+      return NextResponse.json(
+        { error: "Failed to check free analysis limit" },
+        { status: 500 }
+      );
+    }
+
+    if (existingFreeUploads && existingFreeUploads.length > 0) {
+      return NextResponse.json(
+        { 
+          error: 'FREE_LIMIT_REACHED',
+          message: 'You have used your free analysis. Upgrade to Expert Audit for detailed recommendations and unlimited scans.',
+          upgradeUrl: '/pricing',
+          price: '£299',
+          currentUploads: existingFreeUploads.length
+        },
+        { status: 403 }
+      );
+    }
+
     // Read file as text and parse
     const csvText = await file.text();
     const rawData = parseOpenAICSV(csvText);
@@ -91,8 +122,6 @@ export async function POST(req: NextRequest) {
       .map(([model, data]) => ({ model, cost: data.cost, tokens: data.tokens }))
       .sort((a, b) => b.cost - a.cost)
       .slice(0, 10);
-
-    const sb = createServerSupabase();
 
     const analysisData = {
       recommendations,

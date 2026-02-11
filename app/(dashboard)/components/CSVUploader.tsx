@@ -94,7 +94,22 @@ export function CSVUploader({ userId, onComplete }: CSVUploaderProps) {
         clearTimeout(timeoutId);
         setUploadProgress(100);
 
-        if (!res.ok) throw new Error(data.error ?? "Upload failed");
+        if (!res.ok) {
+          // Handle free limit reached error
+          if (data.error === 'FREE_LIMIT_REACHED') {
+            setError(`Free analysis limit reached. ${data.message}`);
+            setUploading(false);
+            setProcessing(false);
+            
+            // Auto-redirect to pricing after 3 seconds
+            setTimeout(() => {
+              router.push('/pricing?reason=free-limit-reached');
+            }, 3000);
+            return;
+          }
+          throw new Error(data.error ?? "Upload failed");
+        }
+        
         const uploadId = data.uploadId;
         
         if (uploadId) {

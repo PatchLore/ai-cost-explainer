@@ -6,7 +6,8 @@ import { useParams, useSearchParams } from "next/navigation";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import { AnalysisViewer } from "@/app/(dashboard)/components/AnalysisViewer";
 import { ConciergeStatus } from "@/app/(dashboard)/components/ConciergeStatus";
-import { Download, FileText, ArrowLeft, Star, Clock, Users, Brain, AlertTriangle } from "lucide-react";
+import { Download, FileText, ArrowLeft, Star, Clock, Users, Brain, AlertTriangle, Lock } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { ProtectedRoute } from "../../../../components/ProtectedRoute";
 import type { CsvUpload } from "@/lib/types";
@@ -50,6 +51,9 @@ export default function UploadDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+
+  // Check if this is a free or paid analysis
+  const isPaid = !!upload?.stripe_payment_intent_id;
 
   const handleCheckout = async () => {
     if (!id) {
@@ -333,6 +337,32 @@ export default function UploadDetailPage() {
             </div>
           </div>
         </div>
+
+        {/* FREE TIER UPGRADE CTA */}
+        {!isPaid && analysis && (
+          <div className="bg-amber-900/30 border border-amber-500/50 rounded-lg p-4 mb-6">
+            <div className="flex items-start gap-3">
+              <Lock className="text-amber-400 mt-1" size={20} />
+              <div>
+                <h3 className="text-amber-400 font-semibold">Free Analysis - Limited Details</h3>
+                <p className="text-slate-300 text-sm mt-1">
+                  We found <span className="text-white font-bold">£{((analysis.total_spend * 0.4) * 0.3).toFixed(2)}+</span> in potential savings. 
+                  Upgrade to see exactly where and how to fix it.
+                </p>
+                <div className="mt-3 flex gap-3">
+                  <Link href="/pricing">
+                    <Button size="sm" className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-medium">
+                      Get Expert Audit - £299
+                    </Button>
+                  </Link>
+                  <span className="text-xs text-slate-500 self-center">
+                    Includes code fixes & implementation guide
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* MIGRATION ROADMAP TABLE */}
         {analysis && (

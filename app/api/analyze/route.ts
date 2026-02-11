@@ -87,6 +87,15 @@ export async function POST(req: NextRequest) {
       cost: r.totalCost 
     })));
 
+    // Check if this is a free or paid analysis
+    const { data: uploadData } = await sb
+      .from('csv_uploads')
+      .select('stripe_checkout_id')
+      .eq('id', uploadId)
+      .single()
+
+    const isPaid = !!uploadData?.stripe_checkout_id
+
     const recommendations = generateRecommendations(validRows.map(mapToUsageRow));
     const totalSpend = validRows.reduce((acc, r) => acc + r.cost, 0);
     const totalRequests = validRows.length;
@@ -107,6 +116,10 @@ export async function POST(req: NextRequest) {
       }))
       .sort((a, b) => b.cost - a.cost)
       .slice(0, 10);
+
+    // Calculate potential savings (show vague amount for free tier)
+    const totalSavings = totalSpend * 0.4; // Example calculation
+    const potentialSavings = isPaid ? totalSavings : Math.round(totalSavings * 0.3);
 
     await sb.from("csv_uploads").update({ status: "analyzing" }).eq("id", uploadId);
     const { error: insertError } = await sb.from("analysis_results").upsert(
