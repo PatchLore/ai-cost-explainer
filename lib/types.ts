@@ -18,6 +18,7 @@ export interface CsvUpload {
   raw_data: unknown;
   created_at: string;
   tier: CsvUploadTier;
+  concierge_status: 'none' | 'pending' | 'delivered';
   stripe_payment_intent_id: string | null;
   loom_video_url: string | null;
   consultant_notes: string | null;

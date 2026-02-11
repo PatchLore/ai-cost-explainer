@@ -52,8 +52,8 @@ export default function UploadDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
 
-  // Check concierge status from tier field
-  const conciergeStatus = upload?.tier || 'none';
+  // Check concierge status from concierge_status field
+  const conciergeStatus = upload?.concierge_status || 'none';
   const hasAnalysisData = analysis && analysis.total_spend > 0;
 
   const handleCheckout = async () => {
@@ -384,7 +384,7 @@ export default function UploadDetailPage() {
         )}
 
         {/* View Your Audit Button for Delivered State */}
-        {conciergeStatus === 'concierge_delivered' && (
+        {conciergeStatus === 'delivered' && (
           <div className="glass-strong p-6 rounded-xl border border-emerald-500/20 bg-emerald-500/10 mb-6">
             <div className="flex items-center justify-between">
               <div>
@@ -443,7 +443,7 @@ export default function UploadDetailPage() {
         {conciergeStatus !== 'none' && (
           <ConciergeStatus
             uploadId={id}
-            tier={conciergeStatus}
+            tier={conciergeStatus === 'pending' ? 'concierge_pending' : conciergeStatus === 'delivered' ? 'concierge_delivered' : 'self_serve'}
             loomVideoUrl={upload.loom_video_url}
             consultantNotes={upload.consultant_notes}
             savingsEstimate={upload.savings_estimate}
