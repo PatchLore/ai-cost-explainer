@@ -53,6 +53,7 @@ export function DashboardContent({ user }: DashboardContentProps) {
         raw_data: [],
         created_at: new Date().toISOString(),
         tier: "self_serve",
+        concierge_status: 'none',
         stripe_payment_intent_id: null,
         loom_video_url: null,
         consultant_notes: null,
