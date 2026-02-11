@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabase } from "@/lib/supabase";
 import { generateRecommendations } from "@/lib/recommendations";
 import type { ParsedCSVRow } from "@/lib/csv-parser";
+import { modelCategories } from "@/lib/model-catalog";
 
 // Add this function before line 67
 function mapToUsageRow(parsed: ParsedCSVRow): any {
@@ -19,6 +20,8 @@ function mapToUsageRow(parsed: ParsedCSVRow): any {
 export async function POST(req: NextRequest) {
   try {
     const { uploadId } = await req.json();
+    console.log('Received CSV data sample:', uploadId);
+    
     if (!uploadId) {
       return NextResponse.json(
         { error: "Missing uploadId" },
@@ -77,6 +80,13 @@ export async function POST(req: NextRequest) {
       console.warn(`Warning: ${invalidRows} rows had invalid or missing cost data and were skipped`);
     }
 
+    // Debug logs for parsed models
+    console.log('Parsed models:', validRows.map(r => ({ 
+      model: r.model, 
+      displayName: r.displayName,
+      cost: r.totalCost 
+    })));
+
     const recommendations = generateRecommendations(validRows.map(mapToUsageRow));
     const totalSpend = validRows.reduce((acc, r) => acc + r.cost, 0);
     const totalRequests = validRows.length;
@@ -89,7 +99,12 @@ export async function POST(req: NextRequest) {
       modelCosts[r.model].tokens += r.tokens_used;
     });
     const topModels = Object.entries(modelCosts)
-      .map(([model, data]) => ({ model, cost: data.cost, tokens: data.tokens }))
+      .map(([model, data]) => ({ 
+        model, 
+        cost: data.cost, 
+        tokens: data.tokens,
+        displayName: modelCategories[model]?.displayName || model
+      }))
       .sort((a, b) => b.cost - a.cost)
       .slice(0, 10);
 

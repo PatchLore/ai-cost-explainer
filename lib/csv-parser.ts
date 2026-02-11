@@ -4,6 +4,7 @@ import { modelCategories } from './model-catalog';
 export interface ParsedCSVRow {
   // New 2026 fields
   model: string;
+  displayName: string;
   inputTokens: number;
   outputTokens: number;
   thinkingTokens: number;
@@ -50,6 +51,45 @@ export function parseOpenAICSV(csvText: string): ParsedCSVRow[] {
 
     // Normalize column names (OpenAI uses different cases)
     return records.map((row: any) => {
+      // Debug log to see what we're getting
+      console.log('Parsing model:', row['model_name'], 'Available:', Object.keys(modelCategories));
+      
+      // Parse model name from model_name column (primary) or fallback to line_item format
+      let modelKey = '';
+      if (row['model_name']) {
+        modelKey = (row['model_name'] || '').toLowerCase().trim();
+      } else {
+        // Fallback to line_item format for backwards compatibility
+        modelKey = (row['line_item'] || row['Model'] || row['model'] || '').split(':')[0].toLowerCase().trim();
+      }
+      
+      const model = modelCategories[modelKey];
+      
+      if (!model) {
+        console.error('Unknown model key:', modelKey, 'Available models:', Object.keys(modelCategories));
+        return {
+          model: 'unknown',
+          displayName: 'Unknown Model',
+          inputTokens: 0,
+          outputTokens: 0,
+          thinkingTokens: 0,
+          isReasoningModel: false,
+          inputCost: 0,
+          outputCost: 0,
+          thinkingCost: 0,
+          totalCost: 0,
+          visibleCost: 0,
+          tokens_used: 0,
+          cost: 0,
+          timestamp: row['Timestamp'] || row['timestamp'] || row['Time'] || row['date'] || '',
+          request_type: row['Request Type'] || row['request_type'] || row['Operation'] || row['operation'] || '',
+          line_item: row['line_item'] || row['Model'] || row['model'] || '',
+          amount_value: 0,
+          amount_currency: row['amount_currency'] || 'USD',
+          ...row
+        };
+      }
+
       // Parse cost from multiple possible column names
       const cost = parseFloat(
         row['amount_value'] || 
@@ -60,46 +100,33 @@ export function parseOpenAICSV(csvText: string): ParsedCSVRow[] {
         0
       ) || 0;
 
-      // Parse tokens with 2026 thinking token support
+      // Parse tokens from CSV columns (not from line_item string)
       const inputTokens = parseInt(row['prompt_tokens'] || row['input_tokens'] || row['Tokens'] || row['tokens_used'] || 0);
       const outputTokens = parseInt(row['completion_tokens'] || row['output_tokens'] || 0);
       const thinkingTokens = parseInt(row['reasoning_tokens'] || row['thinking_tokens'] || 0);
 
-      // Extract model name from line_item or model column
-      const modelKey = (row['line_item'] || row['Model'] || row['model'] || '').split(':')[0].toLowerCase();
-      const model = modelCategories[modelKey];
+      // Calculate costs using model catalog rates
+      const inputCost = (inputTokens / 1000000) * model.costPer1mInput;
+      const outputCost = (outputTokens / 1000000) * model.costPer1mOutput;
+      const calculatedThinkingCost = model.hasThinking && thinkingTokens 
+        ? (thinkingTokens / 1000000) * (model.costPer1mThinking || 0)
+        : 0;
 
-      // Calculate costs for 2026 thinking models
-      let totalCost = cost;
-      let visibleCost = cost;
-      let thinkingCost = 0;
-      let isReasoningModel = false;
-
-      if (model) {
-        isReasoningModel = model.hasThinking;
-        
-        // Calculate true cost including thinking tokens
-        const inputCost = (inputTokens / 1000000) * model.costPer1mInput;
-        const outputCost = (outputTokens / 1000000) * model.costPer1mOutput;
-        const calculatedThinkingCost = model.hasThinking && thinkingTokens 
-          ? (thinkingTokens / 1000000) * (model.costPer1mThinking || 0)
-          : 0;
-
-        totalCost = inputCost + outputCost + calculatedThinkingCost;
-        visibleCost = inputCost + outputCost;
-        thinkingCost = calculatedThinkingCost;
-      }
+      const totalCost = inputCost + outputCost + calculatedThinkingCost;
+      const visibleCost = inputCost + outputCost;
+      const isReasoningModel = model.hasThinking;
 
       return {
         // New 2026 fields
         model: modelKey,
+        displayName: model.displayName || modelKey,
         inputTokens,
         outputTokens,
         thinkingTokens,
         isReasoningModel,
-        inputCost: (inputTokens / 1000000) * (model?.costPer1mInput || 0),
-        outputCost: (outputTokens / 1000000) * (model?.costPer1mOutput || 0),
-        thinkingCost,
+        inputCost,
+        outputCost,
+        thinkingCost: calculatedThinkingCost,
         totalCost,
         visibleCost,
         

@@ -35,17 +35,17 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 interface AnalysisViewerProps {
   totalSpend: number;
   totalRequests: number;
-  topModels: { model: string; cost: number; tokens: number }[];
+  topModels: { model: string; cost: number; tokens: number; displayName?: string }[];
   spendByDay?: { date: string; cost: number }[];
   recommendations: Recommendation[];
 }
 
-// Helper function to parse model name from line_item
+// Helper function to parse model name from line_item (for backwards compatibility)
 function parseModelName(lineItem: string): string {
   return lineItem?.split(':')[0] || 'Unknown';
 }
 
-// Helper function to parse token info from line_item
+// Helper function to parse token info from line_item (for backwards compatibility)
 function parseTokenInfo(lineItem: string): { inputTokens: number; outputTokens: number } {
   const tokenInfo = lineItem?.split(':')[1] || '';
   const [inputStr, outputStr] = tokenInfo.split('+');
@@ -62,12 +62,17 @@ export function AnalysisViewer({
   spendByDay = [],
   recommendations,
 }: AnalysisViewerProps) {
-  const barData = topModels.map((m) => ({
-    name: parseModelName(m.model).length > 15 ? parseModelName(m.model).slice(0, 12) + "…" : parseModelName(m.model),
-    cost: Number(m.cost.toFixed(2)),
-    fullName: parseModelName(m.model),
-    fullLineItem: m.model, // Keep full line_item for tooltip if needed
-  }));
+  const barData = topModels.map((m) => {
+    // Use displayName from API if available, otherwise parse from model
+    const displayName = m.displayName || parseModelName(m.model);
+    
+    return {
+      name: displayName.length > 15 ? displayName.slice(0, 12) + "…" : displayName,
+      cost: Number(m.cost.toFixed(2)),
+      fullName: displayName,
+      fullLineItem: m.model, // Keep full line_item for tooltip if needed
+    };
+  });
 
   // Chart animation refs
   const [barChartRef, barChartVisible] = useIntersectionObserver({ threshold: 0.3 });
@@ -172,14 +177,14 @@ export function AnalysisViewer({
           <h3 className="text-lg font-semibold text-white mb-4">Top Models by Cost</h3>
           <div className="space-y-3">
             {topModels.map((m) => {
-              const modelName = parseModelName(m.model);
+              const displayName = m.displayName || parseModelName(m.model);
               const tokenInfo = parseTokenInfo(m.model);
               const hasTokenDetails = tokenInfo.inputTokens > 0 || tokenInfo.outputTokens > 0;
               
               return (
                 <div key={m.model} className="flex items-center justify-between glass p-3 rounded-lg border border-slate-700/50">
                   <div>
-                    <p className="text-slate-100 font-medium text-sm">{modelName}</p>
+                    <p className="text-slate-100 font-medium text-sm">{displayName}</p>
                     {hasTokenDetails ? (
                       <p className="text-slate-400 text-xs">
                         {tokenInfo.inputTokens.toLocaleString()} input / {tokenInfo.outputTokens.toLocaleString()} output tokens

@@ -29,14 +29,15 @@ interface ReasoningModel {
 
 type ModelCategory = StandardModel | LegacyModel | ReasoningModel;
 
-export const modelCategories: Record<string, ModelCategory> = {
+export const modelCategories: Record<string, ModelCategory & { displayName?: string }> = {
   // 2026 Standard Models
   'gpt-5.2': { 
     costPer1mInput: 1.75, 
     costPer1mOutput: 14.00,
     hasThinking: false,
     category: 'standard',
-    alternative: null
+    alternative: null,
+    displayName: 'GPT-5.2'
   },
   
   'gpt-5-nano': { 
@@ -44,7 +45,8 @@ export const modelCategories: Record<string, ModelCategory> = {
     costPer1mOutput: 0.40,
     hasThinking: false,
     category: 'nano',
-    alternative: null
+    alternative: null,
+    displayName: 'GPT-5 Nano'
   },
   
   // LEGACY TAX MODELS (Critical flag)
@@ -55,7 +57,8 @@ export const modelCategories: Record<string, ModelCategory> = {
     isLegacy: true,
     legacyTax: 0.40, // 40% more expensive than GPT-5.2
     alternative: 'gpt-5.2',
-    savingsPotential: 0.40
+    savingsPotential: 0.40,
+    displayName: 'GPT-4o'
   },
   
   // REASONING/THINKING MODELS (Hidden costs)
@@ -66,7 +69,8 @@ export const modelCategories: Record<string, ModelCategory> = {
     hasThinking: true,
     thinkingAlertThreshold: 3.0, // Flag if thinking > 3x output
     alternative: 'gpt-5.2',
-    category: 'reasoning'
+    category: 'reasoning',
+    displayName: 'GPT-5 Thinking'
   },
   
   'o3': {
@@ -76,7 +80,8 @@ export const modelCategories: Record<string, ModelCategory> = {
     hasThinking: true,
     thinkingAlertThreshold: 2.0,
     alternative: 'gpt-5-thinking',
-    category: 'reasoning'
+    category: 'reasoning',
+    displayName: 'O3'
   },
   
   'o1': {
@@ -86,6 +91,7 @@ export const modelCategories: Record<string, ModelCategory> = {
     hasThinking: true,
     thinkingAlertThreshold: 2.0,
     alternative: 'o3',
-    category: 'reasoning'
+    category: 'reasoning',
+    displayName: 'O1'
   }
 };
