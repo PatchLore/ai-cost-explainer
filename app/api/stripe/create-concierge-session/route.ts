@@ -111,7 +111,7 @@ export async function POST(req: NextRequest) {
           storage_path: "pending",
           file_size: 0,
           content_type: "application/octet-stream",
-          status: "pending", // Will be updated based on constraint check
+          status: "processing",
           concierge_status: "pending",
           analysis_data: {}, // ✅ ADD THIS - empty JSON object
           stripe_checkout_id: null, // Will be set after session creation
