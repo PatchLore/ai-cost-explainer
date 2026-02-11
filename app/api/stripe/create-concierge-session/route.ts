@@ -1,7 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createServerClient } from "@supabase/ssr";
+import { createClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
+
+// CHANGED: Add Service Role client for admin operations
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 export async function POST(req: NextRequest) {
   try {
@@ -77,12 +84,19 @@ export async function POST(req: NextRequest) {
       successUrl = `${baseUrl}/dashboard/upload/${uploadId}?paid=true`;
       cancelUrl = `${baseUrl}/dashboard/upload/${uploadId}?canceled=true`;
     } else {
-      // Create a placeholder upload record for pricing page purchases
-      const { data: placeholder, error } = await supabase
+      // CHANGED: Create a placeholder upload record for pricing page purchases using Service Role client
+      console.log('Service Role client exists:', !!supabaseAdmin);
+      console.log('SUPABASE_SERVICE_ROLE_KEY exists:', !!process.env.SUPABASE_SERVICE_ROLE_KEY);
+      
+      const { data: placeholder, error } = await supabaseAdmin
         .from("csv_uploads")
         .insert({
           user_id: user.id,
           filename: "Pending Expert Audit",
+          original_name: "Pending Expert Audit",
+          storage_path: "pending",
+          file_size: 0,
+          content_type: "application/octet-stream",
           status: "awaiting_upload",
           concierge_status: "pending",
           stripe_checkout_id: null, // Will be set after session creation
@@ -91,6 +105,30 @@ export async function POST(req: NextRequest) {
         .single();
 
       if (error || !placeholder) {
+        // CHANGED: Log the exact Supabase error object with all details
+        console.error("Failed to create placeholder upload:", error);
+        console.error("Error details:", {
+          code: error?.code,
+          message: error?.message,
+          details: error?.details,
+          hint: error?.hint,
+          fullError: error
+        });
+        
+        // CHANGED: Check if it's a constraint issue by trying to insert with minimal data
+        console.log("Attempting to check table constraints...");
+        try {
+          const { data: tableInfo } = await supabaseAdmin
+            .from("information_schema.columns")
+            .select("column_name, is_nullable, data_type")
+            .eq("table_name", "csv_uploads")
+            .eq("table_schema", "public");
+          
+          console.log("Table structure:", tableInfo);
+        } catch (tableError) {
+          console.error("Failed to get table info:", tableError);
+        }
+        
         return NextResponse.json({ error: "Failed to create placeholder upload" }, { status: 500 });
       }
 
@@ -120,7 +158,7 @@ export async function POST(req: NextRequest) {
 
       // Update the placeholder record with the Stripe session ID
       if (!uploadId) {
-        await supabase
+        await supabaseAdmin
           .from("csv_uploads")
           .update({ stripe_checkout_id: session.id })
           .eq("id", verifiedUploadId);
