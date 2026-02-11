@@ -391,7 +391,7 @@ export default function UploadDetailPage() {
 
         {/* Concierge Status Logic */}
         {(() => {
-          if (conciergeStatus === 'pending' && upload.stripe_payment_intent_id) {
+          if (conciergeStatus === 'pending') {
             // Show: "Expert Audit Pending - Delivery in 48 hours" (green badge)
             // Hide the £299 purchase button
             return (
