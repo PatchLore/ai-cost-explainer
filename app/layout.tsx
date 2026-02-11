@@ -6,6 +6,7 @@ const description =
   "Upload your OpenAI usage CSV. Get instant cost analysis, optimization recommendations, and expert concierge review.";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
   title,
   description,
   openGraph: {

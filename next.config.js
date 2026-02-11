@@ -5,6 +5,16 @@ const nextConfig = {
   experimental: {
     instrumentationHook: true,
   },
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.ignoreWarnings = [
+        { module: /node_modules\/@opentelemetry\/instrumentation/ },
+        { module: /node_modules\/require-in-the-middle/ },
+        { module: /node_modules\/@prisma\/instrumentation/ }
+      ]
+    }
+    return config
+  }
 };
 
 const sentryWebpackPluginOptions = {
