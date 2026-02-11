@@ -7,6 +7,7 @@ import Link from "next/link"
 export default function PricingContent() {
   const [hasFreeUpload, setHasFreeUpload] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const searchParams = useSearchParams()
   
   const reason = searchParams?.get("reason")
@@ -28,20 +29,37 @@ export default function PricingContent() {
 
   const handleCheckout = async () => {
     setIsLoading(true)
+    setError(null) // Clear any previous errors
+    
     try {
+      console.log("Starting checkout...")
+      
       const res = await fetch("/api/stripe/create-concierge-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(uploadId ? { uploadId } : {}),
       })
       
+      console.log("Response status:", res.status)
+      
       const data = await res.json()
-      if (data.url) {
-        window.location.href = data.url
+      console.log("Response data:", data)
+      
+      if (!res.ok) {
+        throw new Error(data.error || `Server error: ${res.status}`)
       }
+      
+      if (data.url) {
+        console.log("Redirecting to:", data.url)
+        window.location.href = data.url
+      } else {
+        throw new Error("No checkout URL received from server")
+      }
+      
     } catch (err) {
-      console.error("Checkout failed")
-      setIsLoading(false)
+      console.error("Checkout error:", err)
+      setError(err instanceof Error ? err.message : "Checkout failed. Please try again.")
+      setIsLoading(false) // IMPORTANT: Reset loading state on error
     }
   }
 
@@ -116,6 +134,12 @@ export default function PricingContent() {
             >
               {isLoading ? "Redirecting..." : "Get Expert Audit"}
             </button>
+            
+            {error && (
+              <div className="mt-4 p-3 bg-red-900/30 border border-red-500/50 text-red-400 rounded text-sm">
+                Error: {error}
+              </div>
+            )}
           </div>
         </div>
 
