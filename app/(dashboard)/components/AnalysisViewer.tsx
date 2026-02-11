@@ -40,6 +40,21 @@ interface AnalysisViewerProps {
   recommendations: Recommendation[];
 }
 
+// Helper function to parse model name from line_item
+function parseModelName(lineItem: string): string {
+  return lineItem?.split(':')[0] || 'Unknown';
+}
+
+// Helper function to parse token info from line_item
+function parseTokenInfo(lineItem: string): { inputTokens: number; outputTokens: number } {
+  const tokenInfo = lineItem?.split(':')[1] || '';
+  const [inputStr, outputStr] = tokenInfo.split('+');
+  return {
+    inputTokens: parseInt(inputStr || '0', 10),
+    outputTokens: parseInt(outputStr || '0', 10)
+  };
+}
+
 export function AnalysisViewer({
   totalSpend,
   totalRequests,
@@ -48,9 +63,10 @@ export function AnalysisViewer({
   recommendations,
 }: AnalysisViewerProps) {
   const barData = topModels.map((m) => ({
-    name: m.model.length > 15 ? m.model.slice(0, 12) + "…" : m.model,
+    name: parseModelName(m.model).length > 15 ? parseModelName(m.model).slice(0, 12) + "…" : parseModelName(m.model),
     cost: Number(m.cost.toFixed(2)),
-    fullName: m.model,
+    fullName: parseModelName(m.model),
+    fullLineItem: m.model, // Keep full line_item for tooltip if needed
   }));
 
   // Chart animation refs
@@ -155,17 +171,29 @@ export function AnalysisViewer({
         <div className="glass-strong p-6 rounded-xl border border-slate-800/80 shadow-2xl shadow-black/50">
           <h3 className="text-lg font-semibold text-white mb-4">Top Models by Cost</h3>
           <div className="space-y-3">
-            {topModels.map((m) => (
-              <div key={m.model} className="flex items-center justify-between glass p-3 rounded-lg border border-slate-700/50">
-                <div>
-                  <p className="text-slate-100 font-medium text-sm">{m.model}</p>
-                  <p className="text-slate-400 text-xs">{m.tokens.toLocaleString()} tokens</p>
+            {topModels.map((m) => {
+              const modelName = parseModelName(m.model);
+              const tokenInfo = parseTokenInfo(m.model);
+              const hasTokenDetails = tokenInfo.inputTokens > 0 || tokenInfo.outputTokens > 0;
+              
+              return (
+                <div key={m.model} className="flex items-center justify-between glass p-3 rounded-lg border border-slate-700/50">
+                  <div>
+                    <p className="text-slate-100 font-medium text-sm">{modelName}</p>
+                    {hasTokenDetails ? (
+                      <p className="text-slate-400 text-xs">
+                        {tokenInfo.inputTokens.toLocaleString()} input / {tokenInfo.outputTokens.toLocaleString()} output tokens
+                      </p>
+                    ) : (
+                      <p className="text-slate-400 text-xs">{m.tokens.toLocaleString()} tokens</p>
+                    )}
+                  </div>
+                  <div className="text-right">
+                    <p className="text-emerald-400 font-bold text-sm">${m.cost.toFixed(2)}</p>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-emerald-400 font-bold text-sm">${m.cost.toFixed(2)}</p>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
