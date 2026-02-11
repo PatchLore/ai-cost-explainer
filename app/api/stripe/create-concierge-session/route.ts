@@ -88,6 +88,20 @@ export async function POST(req: NextRequest) {
       console.log('Service Role client exists:', !!supabaseAdmin);
       console.log('SUPABASE_SERVICE_ROLE_KEY exists:', !!process.env.SUPABASE_SERVICE_ROLE_KEY);
       
+      // DEBUG: Check allowed status values from database constraint
+      console.log("Checking allowed status values...");
+      try {
+        const { data: constraint } = await supabaseAdmin
+          .from("information_schema.check_constraints")
+          .select("constraint_name, check_clause")
+          .eq("constraint_name", "csv_uploads_status_check")
+          .single();
+        
+        console.log("Status constraint:", constraint);
+      } catch (constraintError) {
+        console.error("Failed to get constraint info:", constraintError);
+      }
+      
       const { data: placeholder, error } = await supabaseAdmin
         .from("csv_uploads")
         .insert({
@@ -97,7 +111,7 @@ export async function POST(req: NextRequest) {
           storage_path: "pending",
           file_size: 0,
           content_type: "application/octet-stream",
-          status: "pending",
+          status: "pending", // Will be updated based on constraint check
           concierge_status: "pending",
           analysis_data: {}, // ✅ ADD THIS - empty JSON object
           stripe_checkout_id: null, // Will be set after session creation
