@@ -312,36 +312,38 @@ export default function UploadDetailPage() {
           </div>
 
           {/* Right Column - Recommendations */}
-          <div className="lg:col-span-1">
-            <div className="glass-strong p-6 rounded-xl border border-slate-800/80 shadow-2xl shadow-black/50">
-              <h3 className="text-lg font-semibold text-white mb-4">Recommendations</h3>
-              <div className="space-y-4">
-                {analysis?.recommendations.slice(0, 5).map((r) => (
-                  <div key={r.id} className="glass p-4 rounded-lg border border-slate-700/50">
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <div className={`w-2 h-2 rounded-full ${
-                          r.severity === 'high' ? 'bg-red-500' : 
-                          r.severity === 'medium' ? 'bg-amber-500' : 'bg-emerald-500'
-                        }`}></div>
-                        <span className="text-xs text-slate-400 capitalize">{r.severity}</span>
+          {conciergeStatus === 'none' && (
+            <div className="lg:col-span-1">
+              <div className="glass-strong p-6 rounded-xl border border-slate-800/80 shadow-2xl shadow-black/50">
+                <h3 className="text-lg font-semibold text-white mb-4">Recommendations</h3>
+                <div className="space-y-4">
+                  {analysis?.recommendations.slice(0, 5).map((r) => (
+                    <div key={r.id} className="glass p-4 rounded-lg border border-slate-700/50">
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <div className={`w-2 h-2 rounded-full ${
+                            r.severity === 'high' ? 'bg-red-500' : 
+                            r.severity === 'medium' ? 'bg-amber-500' : 'bg-emerald-500'
+                          }`}></div>
+                          <span className="text-xs text-slate-400 capitalize">{r.severity}</span>
+                        </div>
+                        <span className="text-xs text-emerald-400 border border-emerald-500/20 px-2 py-1 rounded">
+                          Impact: £{(r.impact as string)?.replace('$', '') || '0'}/month
+                        </span>
                       </div>
-                      <span className="text-xs text-emerald-400 border border-emerald-500/20 px-2 py-1 rounded">
-                        Impact: £{(r.impact as string)?.replace('$', '') || '0'}/month
-                      </span>
+                      <h4 className="text-slate-100 font-semibold text-sm mb-1">{r.title}</h4>
+                      <p className="text-slate-400 text-xs mb-3">{r.description}</p>
+                      {r.codeSnippet && (
+                        <button className="w-full text-xs text-slate-300 border border-slate-700 hover:bg-slate-800 px-3 py-1 rounded transition-colors">
+                          Copy Code
+                        </button>
+                      )}
                     </div>
-                    <h4 className="text-slate-100 font-semibold text-sm mb-1">{r.title}</h4>
-                    <p className="text-slate-400 text-xs mb-3">{r.description}</p>
-                    {r.codeSnippet && (
-                      <button className="w-full text-xs text-slate-300 border border-slate-700 hover:bg-slate-800 px-3 py-1 rounded transition-colors">
-                        Copy Code
-                      </button>
-                    )}
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* FREE TIER UPGRADE CTA */}
@@ -366,6 +368,34 @@ export default function UploadDetailPage() {
                   </span>
                 </div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Concierge Status Badge */}
+        {conciergeStatus === 'pending' && (
+          <div className="glass-strong p-4 rounded-xl border border-emerald-500/20 bg-emerald-500/10 mb-6">
+            <div className="flex items-center gap-3">
+              <div className="w-3 h-3 bg-emerald-400 rounded-full animate-pulse"></div>
+              <span className="text-emerald-400 font-semibold">Expert Audit Pending</span>
+              <span className="text-slate-400 text-sm">Delivery in 48 hours</span>
+            </div>
+          </div>
+        )}
+
+        {/* View Your Audit Button for Delivered State */}
+        {conciergeStatus === 'concierge_delivered' && (
+          <div className="glass-strong p-6 rounded-xl border border-emerald-500/20 bg-emerald-500/10 mb-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-emerald-400 font-bold text-lg">Expert Audit Ready!</h3>
+                <p className="text-slate-300 text-sm mt-1">Your personalized analysis is available</p>
+              </div>
+              <Link href={`/dashboard/upload/${id}/audit`}>
+                <Button className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-6 py-2">
+                  View Your Audit
+                </Button>
+              </Link>
             </div>
           </div>
         )}

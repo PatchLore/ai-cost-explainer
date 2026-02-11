@@ -5,6 +5,7 @@ export type CsvUploadStatus =
   | "concierge_queued";
 
 export type CsvUploadTier = "self_serve" | "concierge_pending" | "concierge_delivered";
+export type ConciergeStatus = CsvUploadTier | "none" | "pending";
 
 export interface CsvUpload {
   id: string;
