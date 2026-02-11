@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
       .from('csv_uploads')
       .select('id')
       .eq('user_id', user.id)
-      .is('stripe_checkout_id', null) // NULL means free tier (no payment)
+      .is('stripe_payment_intent_id', null) // NULL means free tier (no payment)
       .limit(1)
 
     if (countError) {
@@ -171,7 +171,7 @@ export async function POST(req: NextRequest) {
         analysis_data: analysisData,
         status: "completed", // Set status to completed since analysis is done here
         concierge_status: "none",
-        stripe_checkout_id: null,
+        stripe_payment_intent_id: null,
       })
       .select("id")
       .single();
