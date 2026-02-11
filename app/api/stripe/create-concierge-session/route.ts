@@ -92,13 +92,14 @@ export async function POST(req: NextRequest) {
         .from("csv_uploads")
         .insert({
           user_id: user.id,
-          filename: "Pending Expert Audit",
+          filename: "pending_audit",
           original_name: "Pending Expert Audit",
           storage_path: "pending",
           file_size: 0,
           content_type: "application/octet-stream",
           status: "awaiting_upload",
           concierge_status: "pending",
+          analysis_data: {}, // ✅ ADD THIS - empty JSON object
           stripe_checkout_id: null, // Will be set after session creation
         })
         .select()
