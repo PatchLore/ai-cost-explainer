@@ -170,7 +170,7 @@ export async function POST(req: NextRequest) {
         original_name: file.name,
         analysis_data: analysisData,
         status: "completed", // Set status to completed since analysis is done here
-        concierge_status: "pending",
+        concierge_status: "none",
         stripe_checkout_id: null,
       })
       .select("id")
