@@ -35,11 +35,40 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const recommendations = generateRecommendations(rawData);
-    const totalSpend = rawData.reduce((acc, r) => acc + r.cost, 0);
-    const totalRequests = rawData.length;
+    // Validate CSV data
+    if (rawData.length === 0) {
+      return NextResponse.json(
+        { error: "CSV file appears to be empty or contains no valid data" },
+        { status: 400 }
+      );
+    }
+
+    // Check for rows with missing critical data
+    const validRows = rawData.filter(row => 
+      row.model && 
+      typeof row.cost === 'number' && 
+      typeof row.tokens_used === 'number' &&
+      row.cost > 0
+    );
+
+    if (validRows.length === 0) {
+      return NextResponse.json(
+        { error: "No valid cost data found in CSV. Please ensure your file contains cost information." },
+        { status: 400 }
+      );
+    }
+
+    // Log any invalid rows for debugging
+    const invalidRows = rawData.length - validRows.length;
+    if (invalidRows > 0) {
+      console.warn(`Warning: ${invalidRows} rows had invalid or missing cost data and were skipped`);
+    }
+
+    const recommendations = generateRecommendations(validRows);
+    const totalSpend = validRows.reduce((acc, r) => acc + r.cost, 0);
+    const totalRequests = validRows.length;
     const modelCosts: Record<string, { cost: number; tokens: number }> = {};
-    rawData.forEach((r) => {
+    validRows.forEach((r) => {
       if (!modelCosts[r.model]) {
         modelCosts[r.model] = { cost: 0, tokens: 0 };
       }
