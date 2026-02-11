@@ -1,6 +1,8 @@
 "use client";
 
 import { metadata } from "./metadata";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -223,6 +225,8 @@ export default function RootLayout({
             </div>
           </div>
         </footer>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
