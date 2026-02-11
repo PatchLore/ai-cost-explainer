@@ -108,25 +108,48 @@ export default function UploadDetailPage() {
       }
       setUpload(uploadData as CsvUpload);
 
-      const { data: analysisData } = await supabase
-        .from("analysis_results")
-        .select("total_spend, total_requests, top_models, spend_by_day, recommendations")
-        .eq("upload_id", id)
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .single();
+      // Only fetch analysis if upload has data or is completed
+      const shouldFetchAnalysis = uploadData?.analysis_data || uploadData?.status === 'completed';
+      if (shouldFetchAnalysis) {
+        try {
+          const { data: analysisData } = await supabase
+            .from("analysis_results")
+            .select("total_spend, total_requests, top_models, spend_by_day, recommendations")
+            .eq("upload_id", id)
+            .order("created_at", { ascending: false })
+            .limit(1)
+            .single();
 
-      setAnalysis(analysisData as AnalysisRow | null);
+          setAnalysis(analysisData as AnalysisRow | null);
+        } catch (analysisError) {
+          console.error('Analysis fetch error:', analysisError);
+          setAnalysis(null);
+        }
+      } else {
+        setAnalysis(null);
+      }
 
-      const { data: deliverableData } = await supabase
-        .from("concierge_deliverables")
-        .select("code_snippets")
-        .eq("upload_id", id)
-        .order("delivered_at", { ascending: false })
-        .limit(1)
-        .single();
-      if (deliverableData?.code_snippets) {
-        setCodeSnippets(deliverableData.code_snippets as { title: string; language: string; code: string }[]);
+      // Only fetch concierge deliverables if status is delivered
+      const shouldFetchConcierge = uploadData?.concierge_status === 'delivered';
+      if (shouldFetchConcierge) {
+        try {
+          const { data: deliverableData } = await supabase
+            .from("concierge_deliverables")
+            .select("code_snippets")
+            .eq("upload_id", id)
+            .order("delivered_at", { ascending: false })
+            .limit(1)
+            .single();
+          
+          if (deliverableData?.code_snippets) {
+            setCodeSnippets(deliverableData.code_snippets as { title: string; language: string; code: string }[]);
+          }
+        } catch (conciergeError) {
+          console.error('Concierge deliverables fetch error:', conciergeError);
+          setCodeSnippets(null);
+        }
+      } else {
+        setCodeSnippets(null);
       }
 
       setLoading(false);
