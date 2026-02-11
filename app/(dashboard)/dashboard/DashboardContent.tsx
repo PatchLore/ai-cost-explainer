@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useSearchParams } from 'next/navigation';
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import { CSVUploader } from "@/app/(dashboard)/components/CSVUploader";
 import type { CsvUpload } from "@/lib/types";
@@ -15,8 +14,6 @@ export function DashboardContent({ user }: DashboardContentProps) {
   const [uploads, setUploads] = useState<CsvUpload[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const searchParams = useSearchParams();
-  const showUploadPrompt = searchParams.get('message') === 'upload-first';
 
   useEffect(() => {
     async function init() {
@@ -63,41 +60,72 @@ export function DashboardContent({ user }: DashboardContentProps) {
     });
   };
 
+  const getUploadType = (upload: CsvUpload) => {
+    if (upload.tier === 'concierge_pending') {
+      return 'pending_concierge';
+    } else if (upload.tier === 'concierge_delivered') {
+      return 'delivered_concierge';
+    } else {
+      return 'csv_analysis';
+    }
+  };
+
+  const getUploadAction = (upload: CsvUpload) => {
+    const type = getUploadType(upload);
+    const uploadType = getUploadType(upload);
+    
+    if (uploadType === 'pending_concierge') {
+      return {
+        label: 'Upload CSV',
+        href: `/dashboard/upload/${upload.id}`,
+        variant: 'primary'
+      };
+    } else if (uploadType === 'delivered_concierge') {
+      return {
+        label: 'View Audit Report',
+        href: `/dashboard/upload/${upload.id}`,
+        variant: 'secondary'
+      };
+    } else {
+      return {
+        label: 'View Analysis',
+        href: `/dashboard/upload/${upload.id}`,
+        variant: 'secondary'
+      };
+    }
+  };
+
   return (
     <div className="space-y-8">
       <div className="space-y-4">
-        {/* Show upload prompt for users coming from pricing page */}
-        {showUploadPrompt && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-            <p className="text-blue-800 text-sm font-medium">
-              Upload your CSV to purchase the £299 Expert Audit
-            </p>
-            <p className="text-blue-700 text-xs mt-1">
-              Upload a file to get started with your free analysis, then upgrade to the expert audit
-            </p>
-          </div>
-        )}
-        
-        <h1 className="text-2xl font-bold text-slate-800">Upload History</h1>
+        <h1 className="text-2xl font-bold text-slate-800">Your Uploads & Audits</h1>
 
-        <div className="grid md:grid-cols-2 gap-6 mb-8">
+        <div className="grid md:grid-cols-3 gap-6 mb-8">
           <div className="bg-slate-50 p-6 rounded-lg">
-            <h3 className="font-semibold text-lg mb-3">Free Analysis Includes:</h3>
+            <h3 className="font-semibold text-lg mb-3">CSV Analysis (Free)</h3>
             <ul className="space-y-2 text-sm text-slate-600">
-              <li>• Cost breakdown by model (GPT-4 vs GPT-3.5)</li>
+              <li>• Cost breakdown by model</li>
               <li>• Spending trends over time</li>
               <li>• 3 instant savings recommendations</li>
             </ul>
           </div>
 
-          <div className="bg-blue-50 p-6 rounded-lg border border-blue-200">
-            <h3 className="font-semibold text-lg mb-3 text-blue-900">Expert Audit (£299) Includes:</h3>
-            <ul className="space-y-2 text-sm text-blue-800">
+          <div className="bg-violet-50 p-6 rounded-lg border border-violet-200">
+            <h3 className="font-semibold text-lg mb-3 text-violet-900">Expert Audit (£299)</h3>
+            <ul className="space-y-2 text-sm text-violet-800">
               <li>• Personal written audit report</li>
-              <li>• Specific migration plan (GPT-4 → cheaper models)</li>
+              <li>• Specific migration plan</li>
               <li>• 48-hour delivery guarantee</li>
             </ul>
-            <p className="mt-3 text-sm text-blue-700">Note: Upgrade button available after you upload and view an analysis.</p>
+          </div>
+
+          <div className="bg-emerald-50 p-6 rounded-lg border border-emerald-200">
+            <h3 className="font-semibold text-lg mb-3 text-emerald-900">What You Get</h3>
+            <ul className="space-y-2 text-sm text-emerald-800">
+              <li>• Clear cost optimization roadmap</li>
+              <li>• Code fixes & implementation guide</li>
+              <li>• Personal consultant support</li>
+            </ul>
           </div>
         </div>
 
@@ -108,32 +136,67 @@ export function DashboardContent({ user }: DashboardContentProps) {
         <p className="text-slate-500">Loading uploads...</p>
       ) : uploads.length === 0 ? (
         <p className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-slate-600">
-          No uploads yet. Drop a CSV above to get started.
+          No uploads yet. Drop a CSV above to get started with your free analysis.
         </p>
       ) : (
-        <ul className="divide-y divide-slate-200 rounded-lg border border-slate-200 bg-white">
-          {uploads.map((u) => (
-            <li key={u.id} className="flex items-center justify-between px-4 py-3">
-              <div>
-                <Link
-                  href={`/dashboard/upload/${u.id}`}
-                  className="font-medium text-blue-600 hover:underline"
-                >
-                  {u.filename ?? "Upload"} — {u.status}
-                </Link>
-                <span className="ml-2 text-sm text-slate-500">
-                  {new Date(u.created_at).toLocaleDateString()} · {u.tier}
-                </span>
+        <div className="space-y-6">
+          {uploads.map((upload) => {
+            const type = getUploadType(upload);
+            const action = getUploadAction(upload);
+            const uploadDate = new Date(upload.created_at).toLocaleDateString();
+            
+            return (
+              <div key={upload.id} className="glass-strong p-6 rounded-xl border border-slate-800/80 shadow-2xl shadow-black/50">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className={`w-3 h-3 rounded-full ${
+                      type === 'csv_analysis' ? 'bg-blue-500' : 
+                      type === 'pending_concierge' ? 'bg-amber-500' : 'bg-emerald-500'
+                    }`}></div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-white">
+                        {type === 'csv_analysis' && 'CSV Analysis'}
+                        {type === 'pending_concierge' && 'Expert Audit (Pending)'}
+                        {type === 'delivered_concierge' && 'Expert Audit (Delivered)'}
+                      </h3>
+                      <p className="text-slate-400 text-sm">
+                        {upload.filename ? `File: ${upload.filename}` : `Created: ${uploadDate}`}
+                        {upload.savings_estimate && (
+                          <span className="ml-2 text-emerald-400">
+                            • Estimated savings: £{upload.savings_estimate.toFixed(2)}
+                          </span>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-3">
+                    {type === 'pending_concierge' && (
+                      <span className="px-3 py-1 bg-amber-500/20 border border-amber-500/30 rounded-full text-sm text-amber-400">
+                        Upload CSV to start analysis
+                      </span>
+                    )}
+                    {type === 'delivered_concierge' && (
+                      <span className="px-3 py-1 bg-emerald-500/20 border border-emerald-500/30 rounded-full text-sm text-emerald-400">
+                        Audit ready to view
+                      </span>
+                    )}
+                    <Link
+                      href={action.href}
+                      className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                        action.variant === 'primary' 
+                          ? 'bg-violet-500 hover:bg-violet-400 text-white' 
+                          : 'bg-slate-700 hover:bg-slate-600 text-white'
+                      }`}
+                    >
+                      {action.label}
+                    </Link>
+                  </div>
+                </div>
               </div>
-              <Link
-                href={`/dashboard/upload/${u.id}`}
-                className="rounded bg-slate-100 px-3 py-1 text-sm text-slate-700 hover:bg-slate-200"
-              >
-                View
-              </Link>
-            </li>
-          ))}
-        </ul>
+            );
+          })}
+        </div>
       )}
     </div>
   );
