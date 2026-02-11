@@ -291,7 +291,7 @@ export default function UploadDetailPage() {
 
           {/* Center Column - Main Chart Area */}
           <div className="lg:col-span-2">
-            {analysis ? (
+            {analysis && analysis.total_spend > 0 ? (
               <AnalysisViewer
                 totalSpend={analysis.total_spend}
                 totalRequests={analysis.total_requests}
@@ -300,13 +300,33 @@ export default function UploadDetailPage() {
                 recommendations={(analysis.recommendations as Recommendation[]) ?? []}
               />
             ) : (
-              <div className="glass-strong p-8 rounded-xl border border-slate-800/80 shadow-2xl shadow-black/50 text-center">
-                <p className="text-slate-400">
-                  {conciergeStatus === 'none' 
-                    ? 'Upload your OpenAI usage CSV to see analysis' 
-                    : 'Analysis results will be available after your CSV is processed'
-                  }
-                </p>
+              <div className="glass-strong p-8 rounded-xl border border-slate-800/80 shadow-2xl shadow-black/50">
+                {conciergeStatus === 'pending' ? (
+                  <div className="text-center">
+                    <h3 className="text-lg font-semibold text-white mb-4">Upload your OpenAI usage CSV for Expert Analysis</h3>
+                    <p className="text-slate-400 mb-6">
+                      Your Expert Audit is ready. Upload your CSV file to begin the detailed analysis process.
+                    </p>
+                    <div className="border-2 border-dashed border-slate-600 rounded-lg p-8">
+                      <div className="text-slate-400 mb-4">
+                        <FileText className="w-12 h-12 mx-auto mb-2" />
+                        <p className="text-sm">Drag and drop your CSV file here</p>
+                      </div>
+                      <p className="text-xs text-slate-500">
+                        Supported: OpenAI usage CSV files
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center">
+                    <p className="text-slate-400">
+                      {conciergeStatus === 'none' 
+                        ? 'Upload your OpenAI usage CSV to see analysis' 
+                        : 'Analysis results will be available after your CSV is processed'
+                      }
+                    </p>
+                  </div>
+                )}
               </div>
             )}
           </div>
