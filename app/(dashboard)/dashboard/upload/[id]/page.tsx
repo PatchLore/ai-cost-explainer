@@ -52,8 +52,9 @@ export default function UploadDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
 
-  // Check if this is a free or paid analysis
-  const isPaid = !!upload?.stripe_payment_intent_id;
+  // Check concierge status from tier field
+  const conciergeStatus = upload?.tier || 'none';
+  const hasAnalysisData = analysis && analysis.total_spend > 0;
 
   const handleCheckout = async () => {
     if (!id) {
@@ -300,7 +301,12 @@ export default function UploadDetailPage() {
               />
             ) : (
               <div className="glass-strong p-8 rounded-xl border border-slate-800/80 shadow-2xl shadow-black/50 text-center">
-                <p className="text-slate-400">No analysis results yet.</p>
+                <p className="text-slate-400">
+                  {conciergeStatus === 'none' 
+                    ? 'Upload your OpenAI usage CSV to see analysis' 
+                    : 'Analysis results will be available after your CSV is processed'
+                  }
+                </p>
               </div>
             )}
           </div>
@@ -339,7 +345,7 @@ export default function UploadDetailPage() {
         </div>
 
         {/* FREE TIER UPGRADE CTA */}
-        {!isPaid && analysis && (
+        {conciergeStatus === 'none' && analysis && (
           <div className="bg-amber-900/30 border border-amber-500/50 rounded-lg p-4 mb-6">
             <div className="flex items-start gap-3">
               <Lock className="text-amber-400 mt-1" size={20} />
@@ -403,27 +409,17 @@ export default function UploadDetailPage() {
           </div>
         )}
 
-        {/* Concierge CTA */}
-        <div className="glass-strong p-8 rounded-xl border border-slate-800/80 shadow-2xl shadow-black/50">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-2xl font-bold text-white mb-2">Want us to implement these?</h3>
-              <p className="text-slate-400">Get a personalized audit with expert recommendations and implementation guidance.</p>
-              <div className="flex items-center gap-4 mt-4">
-                <span className="text-sm text-amber-400 font-medium">3 spots left this week</span>
-                <span className="text-sm text-slate-500">•</span>
-                <span className="text-sm text-slate-400">48-hour delivery</span>
-              </div>
-            </div>
-            <button
-              onClick={handleCheckout}
-              disabled={checkoutLoading}
-              className="bg-gradient-to-r from-violet-500 to-violet-600 hover:from-violet-400 hover:to-violet-500 text-white font-bold px-8 py-3 rounded-full shadow-lg shadow-violet-500/25 hover-scale transition-all text-lg border-2 border-violet-400/50 animate-pulse disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {checkoutLoading ? "Redirecting to Stripe..." : "£299 Audit"}
-            </button>
-          </div>
-        </div>
+        {/* Concierge Status */}
+        {conciergeStatus !== 'none' && (
+          <ConciergeStatus
+            uploadId={id}
+            tier={conciergeStatus}
+            loomVideoUrl={upload.loom_video_url}
+            consultantNotes={upload.consultant_notes}
+            savingsEstimate={upload.savings_estimate}
+            codeSnippets={codeSnippets}
+          />
+        )}
 
         {/* Status Banner */}
         {paid && (
