@@ -89,6 +89,11 @@ export async function POST(req: NextRequest) {
       top_models: topModels,
     };
 
+    // Debug: Log parsed data
+    console.log('CSV Parser Debug - Total spend:', totalSpend);
+    console.log('CSV Parser Debug - Total requests:', totalRequests);
+    console.log('CSV Parser Debug - First few rows:', rawData.slice(0, 3));
+
     // Upload to storage first. If storage fails, abort early and return error.
     const arrayBuffer = await file.arrayBuffer();
     const storagePath = `${userId}/${Date.now()}-${file.name}`;
@@ -122,6 +127,7 @@ export async function POST(req: NextRequest) {
         content_type: file.type || "text/csv",
         original_name: file.name,
         analysis_data: analysisData,
+        status: "completed", // Set status to completed since analysis is done here
         concierge_status: "pending",
         stripe_checkout_id: null,
       })
