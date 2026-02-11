@@ -101,7 +101,26 @@ export function CSVUploader({ userId, onComplete }: CSVUploaderProps) {
             setUploading(false);
             setProcessing(false);
             
-            // Auto-redirect to pricing after 3 seconds
+            // Check if user has existing concierge audit before redirecting to pricing
+            try {
+              const supabase = createBrowserSupabaseClient();
+              const { data: existingAudit } = await supabase
+                .from('concierge_deliverables')
+                .select('id, upload_id, status')
+                .eq('user_id', userId)
+                .in('status', ['pending', 'delivered'])
+                .single();
+
+              if (existingAudit) {
+                // User has existing audit, redirect to their audit page
+                router.push(`/dashboard/upload/${existingAudit.upload_id}`);
+                return;
+              }
+            } catch (auditError) {
+              console.error('Error checking existing audit:', auditError);
+            }
+            
+            // No existing audit, redirect to pricing after 3 seconds
             setTimeout(() => {
               router.push('/pricing?reason=free-limit-reached');
             }, 3000);
