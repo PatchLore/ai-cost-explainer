@@ -14,7 +14,8 @@ export default function LoginPage() {
   useEffect(() => {
     try {
       const params = new URLSearchParams(window.location.search);
-      setRedirectTo(params.get("redirect") ?? "/dashboard");
+      const redirectedFrom = params.get("redirectedFrom");
+      setRedirectTo(redirectedFrom || "/dashboard");
     } catch {
       setRedirectTo("/dashboard");
     }

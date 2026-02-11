@@ -36,9 +36,9 @@ export const SecuritySection = () => {
           </div>
 
           <p className="text-sm text-gray-500 mono">
-            Need a DPA? Email{' '}
-            <a href="mailto:security@aispendaudit.com" className="text-blue-400 hover:underline">
-              security@aispendaudit.com
+            Need help? Email{' '}
+            <a href="mailto:support@aispendaudit.com" className="text-blue-400 hover:underline">
+              support@aispendaudit.com
             </a>
           </p>
         </div>

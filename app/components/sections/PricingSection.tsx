@@ -1,5 +1,6 @@
 "use client"
 import { useState, useEffect } from 'react'
+import { useRouter } from "next/navigation"
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 
@@ -10,6 +11,8 @@ function cn(...inputs: ClassValue[]) {
 
 export const PricingSection = () => {
   const [timeLeft, setTimeLeft] = useState({ hours: 47, minutes: 32, seconds: 15 })
+  const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter()
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -22,6 +25,49 @@ export const PricingSection = () => {
     }, 1000)
     return () => clearInterval(timer)
   }, [])
+
+  const handleCheckout = async () => {
+    // If no upload yet, show error
+    const currentPath = window.location.pathname
+    const isDashboard = currentPath.includes('/dashboard')
+    const uploadId = isDashboard ? currentPath.split('/').pop() : null
+
+    if (!isDashboard || !uploadId || uploadId === 'dashboard') {
+      // Show error toast or redirect to upload
+      alert("Please upload your CSV first to get an audit.")
+      if (!isDashboard) {
+        router.push('/dashboard')
+      }
+      return
+    }
+
+    setIsLoading(true)
+    
+    try {
+      const response = await fetch('/api/stripe/create-concierge-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uploadId })
+      })
+      
+      const data = await response.json()
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create checkout')
+      }
+      
+      if (data.url) {
+        window.location.href = data.url
+      } else {
+        throw new Error('No checkout URL returned')
+      }
+    } catch (error) {
+      console.error('Checkout error:', error)
+      alert("Checkout failed. Please try again.")
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   return (
     <section id="pricing" className="py-20 lg:py-32 bg-[#0B1020]">
@@ -36,40 +82,11 @@ export const PricingSection = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 max-w-4xl mx-auto">
-            {/* Free Plan */}
-            <div className="surface rounded-2xl p-6 lg:p-8 card-hover">
-              <div className="mb-6">
-                <h3 className="text-xl font-semibold text-white mb-2">Instant Analysis</h3>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-4xl font-bold text-white">Free</span>
-                </div>
-              </div>
-              <ul className="space-y-3 mb-8">
-                {[
-                  'Cost breakdown by model',
-                  '7-day trend chart',
-                  '3 quick wins',
-                ].map((feature, i) => (
-                  <li key={i} className="flex items-center gap-3 text-gray-300">
-                    <span className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
-                      <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                    </span>
-                    {feature}
-                  </li>
-                ))}
-              </ul>
-              <button className="w-full py-3 px-6 bg-gray-800 hover:bg-gray-700 text-white font-medium rounded-xl transition-colors">
-                Upload CSV
-              </button>
-            </div>
-
-            {/* Pro Plan */}
-            <div className="surface rounded-2xl p-6 lg:p-8 border-2 border-blue-500 relative glow-blue">
+          <div className="grid grid-cols-1 md:grid-cols-1 gap-6 lg:gap-8 max-w-4xl mx-auto">
+            {/* Single Expert Audit Tier */}
+            <div className="surface rounded-2xl p-6 lg:p-8 border-2 border-emerald-500/50 relative glow-emerald">
               <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                <span className="px-4 py-1 bg-blue-600 text-white text-xs font-semibold rounded-full">
+                <span className="px-4 py-1 bg-emerald-600 text-white text-xs font-semibold rounded-full">
                   Most Popular
                 </span>
               </div>
@@ -83,8 +100,8 @@ export const PricingSection = () => {
               </div>
 
               {/* Countdown Timer */}
-              <div className="bg-blue-500/10 rounded-lg p-3 mb-6">
-                <p className="text-xs text-blue-400 text-center mb-2">Limited time offer ends in:</p>
+              <div className="bg-emerald-500/10 rounded-lg p-3 mb-6">
+                <p className="text-xs text-emerald-400 text-center mb-2">Limited time offer ends in:</p>
                 <div className="flex justify-center gap-2">
                   {[
                     { value: timeLeft.hours, label: 'hrs' },
@@ -92,7 +109,7 @@ export const PricingSection = () => {
                     { value: timeLeft.seconds, label: 'sec' },
                   ].map((item, i) => (
                     <div key={i} className="text-center">
-                      <div className="w-12 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                      <div className="w-12 h-10 bg-emerald-600 rounded-lg flex items-center justify-center">
                         <span className="text-white font-bold mono">
                           {String(item.value).padStart(2, '0')}
                         </span>
@@ -105,14 +122,14 @@ export const PricingSection = () => {
 
               <ul className="space-y-3 mb-8">
                 {[
-                  'Everything in Free',
+                  'Complete CSV analysis',
                   'Written report (PDF)',
                   'Custom code fixes',
                   '48-hour delivery',
-                  'Money-back if no savings found',
+                  'Money-back guarantee',
                 ].map((feature, i) => (
                   <li key={i} className="flex items-center gap-3 text-gray-300">
-                    <span className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center">
+                    <span className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center">
                       <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
@@ -121,9 +138,27 @@ export const PricingSection = () => {
                   </li>
                 ))}
               </ul>
-              <button className="w-full py-3 px-6 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-xl transition-colors pulse-cta">
-                Get Expert Audit
+              <button 
+                onClick={handleCheckout}
+                disabled={isLoading}
+                className="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-4 px-6 rounded-full shadow-lg shadow-emerald-500/25 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              >
+                {isLoading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Redirecting to Stripe...
+                  </span>
+                ) : (
+                  "Get Expert Audit - £299"
+                )}
               </button>
+              
+              <p className="text-xs text-slate-500 mt-4 text-center">
+                Free analysis available after login
+              </p>
             </div>
           </div>
         </div>

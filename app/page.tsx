@@ -54,19 +54,21 @@ export default function HomePage() {
 
               {/* CTA Group */}
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mt-8">
-                <button
-                  onClick={() => window.location.href = "/dashboard"}
-                  className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-8 py-4 rounded-full shadow-lg shadow-emerald-500/25 hover-scale transition-all duration-300 text-lg"
-                >
-                  Analyze My Bill Free
-                </button>
-                <a
-                  href="#sample-report"
-                  className="border border-slate-700 hover:bg-slate-800 px-8 py-4 rounded-full transition-all duration-300 text-lg hover-scale"
-                >
-                  See Sample Report
-                </a>
+                <Link href="/login">
+                  <button className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-8 py-4 rounded-full shadow-lg shadow-emerald-500/25 hover-scale transition-all duration-300 text-lg">
+                    Analyze My Bill Free
+                  </button>
+                </Link>
+                <Link href="/sample-report">
+                  <button className="border border-slate-700 hover:bg-slate-800 px-8 py-4 rounded-full transition-all duration-300 text-lg hover-scale text-white">
+                    See Sample Report
+                  </button>
+                </Link>
               </div>
+
+              <p className="text-sm text-slate-500 mt-4 text-center">
+                Free analysis requires account creation. No credit card required.
+              </p>
 
               {/* Trust Bar */}
               <div className="flex items-center justify-center lg:justify-start gap-6 text-sm text-slate-600 mt-8">

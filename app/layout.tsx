@@ -3,7 +3,8 @@
 import { metadata } from "./metadata";
 import "./globals.css";
 import { useState } from "react";
-import { Menu, X, Upload } from "lucide-react";
+import Link from "next/link";
+import { Menu, X } from "lucide-react";
 
 export default function RootLayout({
   children,
@@ -19,31 +20,49 @@ export default function RootLayout({
         <nav className="stagger-fade fixed top-0 left-0 right-0 z-50 bg-slate-950/90 backdrop-blur-xl border-b border-slate-800/50 px-4 sm:px-6 lg:px-8 py-4">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
             <div className="flex items-center gap-4 sm:gap-8">
-              <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">AI Cost Explainer</h1>
-              <div className="hidden lg:flex items-center gap-6 text-slate-300">
-                <a href="#how-it-works" className="hover:text-white transition-colors text-sm sm:text-base">How It Works</a>
-                <a href="#pricing" className="hover:text-white transition-colors text-sm sm:text-base">Pricing</a>
-                <a href="#dashboard" className="hover:text-white transition-colors text-sm sm:text-base">Dashboard</a>
+              {/* Logo - MUST use Link component */}
+              <Link 
+                href="/" 
+                className="text-xl sm:text-2xl font-bold text-white tracking-tight"
+              >
+                AI Cost Explainer
+              </Link>
+              
+              {/* Desktop Nav */}
+              <div className="hidden lg:flex items-center gap-8">
+                <Link href="/#how-it-works" className="text-slate-400 hover:text-white transition-colors text-sm sm:text-base">
+                  How It Works
+                </Link>
+                <Link href="/#pricing" className="text-slate-400 hover:text-white transition-colors text-sm sm:text-base">
+                  Pricing
+                </Link>
+                <Link 
+                  href="/dashboard" 
+                  className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-4 py-2 rounded-full font-medium transition-colors text-sm sm:text-base"
+                >
+                  Dashboard
+                </Link>
               </div>
             </div>
             <div className="flex items-center gap-2 sm:gap-4">
               <div className="hidden sm:flex items-center gap-2">
-                <a 
+                <Link 
                   href="/login" 
                   className="px-3 py-2 text-sm text-slate-300 hover:text-white transition-colors"
                 >
                   Login
-                </a>
-                <a 
+                </Link>
+                <Link 
                   href="/signup" 
                   className="px-4 py-2 sm:px-6 sm:py-3 bg-gradient-to-r from-violet-500 to-violet-600 hover:from-violet-400 hover:to-violet-500 text-white font-semibold rounded-lg hover-scale transition-all text-sm sm:text-base"
                 >
                   Get Started
-                </a>
+                </Link>
               </div>
-              <button
+              {/* Mobile menu button */}
+              <button 
+                className="lg:hidden p-2"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="lg:hidden p-2 rounded-lg hover:bg-slate-800 transition-colors"
               >
                 {mobileMenuOpen ? (
                   <X className="w-6 h-6 text-white" />
@@ -53,53 +72,39 @@ export default function RootLayout({
               </button>
             </div>
           </div>
-
+          
           {/* Mobile Menu */}
-          <div className={`lg:hidden absolute top-full left-0 right-0 bg-slate-950/95 backdrop-blur-xl border-b border-slate-800/50 transition-all duration-300 ease-in-out ${
-            mobileMenuOpen 
-              ? 'max-h-64 opacity-100 translate-y-0' 
-              : 'max-h-0 opacity-0 -translate-y-2 overflow-hidden'
-          }`}>
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 space-y-3">
-              <a 
-                href="#how-it-works" 
-                className="block px-4 py-3 text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                How It Works
-              </a>
-              <a 
-                href="#pricing" 
-                className="block px-4 py-3 text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Pricing
-              </a>
-              <a 
-                href="#dashboard" 
-                className="block px-4 py-3 text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Dashboard
-              </a>
-              <div className="pt-2 border-t border-slate-800/50 space-y-2">
-                <a 
-                  href="/login" 
-                  className="block px-4 py-3 text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Login
-                </a>
-                <a 
-                  href="/signup" 
-                  className="block px-4 py-3 bg-gradient-to-r from-violet-500 to-violet-600 hover:from-violet-400 hover:to-violet-500 text-white font-semibold rounded-lg transition-all text-center"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Get Started
-                </a>
+          {mobileMenuOpen && (
+            <div className="lg:hidden py-4 border-t border-slate-800/50">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-3">
+                <Link href="/#how-it-works" className="block text-slate-400 hover:text-white py-3" onClick={() => setMobileMenuOpen(false)}>
+                  How It Works
+                </Link>
+                <Link href="/#pricing" className="block text-slate-400 hover:text-white py-3" onClick={() => setMobileMenuOpen(false)}>
+                  Pricing
+                </Link>
+                <Link href="/dashboard" className="block bg-emerald-500 text-slate-950 px-4 py-2 rounded-full font-medium text-center" onClick={() => setMobileMenuOpen(false)}>
+                  Dashboard
+                </Link>
+                <div className="pt-2 border-t border-slate-800/50 space-y-2">
+                  <Link 
+                    href="/login" 
+                    className="block px-4 py-3 text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Login
+                  </Link>
+                  <Link 
+                    href="/signup" 
+                    className="block px-4 py-3 bg-gradient-to-r from-violet-500 to-violet-600 hover:from-violet-400 hover:to-violet-500 text-white font-semibold rounded-lg transition-all text-center"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Get Started
+                  </Link>
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </nav>
 
         {/* Main Content with spacing for fixed nav */}

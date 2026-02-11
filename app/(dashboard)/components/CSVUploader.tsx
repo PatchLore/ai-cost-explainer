@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Upload, CheckCircle, Loader2 } from "lucide-react";
+import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 
 const MAX_FILE_BYTES = 10 * 1024 * 1024; // 10MB
 
@@ -19,6 +20,24 @@ export function CSVUploader({ userId, onComplete }: CSVUploaderProps) {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const disabled = !userId || uploading || processing;
+
+  // Client-side auth verification
+  useEffect(() => {
+    const checkAuth = async () => {
+      const supabase = createBrowserSupabaseClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        setError("Authentication required. Please login to upload CSV files.");
+        // Redirect to login after a short delay
+        setTimeout(() => {
+          router.push('/login?redirectedFrom=/dashboard');
+        }, 2000);
+      }
+    };
+
+    checkAuth();
+  }, [router]);
 
   const uploadFile = useCallback(
     async (file: File) => {
