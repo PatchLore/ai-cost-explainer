@@ -7,6 +7,7 @@ import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import { AnalysisViewer } from "@/app/(dashboard)/components/AnalysisViewer";
 import { ConciergeStatus } from "@/app/(dashboard)/components/ConciergeStatus";
 import { Download, FileText, ArrowLeft, Star, Clock, Users } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 import type { CsvUpload } from "@/lib/types";
 import type { Recommendation } from "@/lib/recommendations";
 
@@ -23,6 +24,7 @@ export default function UploadDetailPage() {
   const searchParams = useSearchParams();
   const id = params.id as string;
   const paid = searchParams.get("paid") === "true";
+  const { toast } = useToast();
 
   const [upload, setUpload] = useState<CsvUpload | null>(null);
   const [analysis, setAnalysis] = useState<AnalysisRow | null>(null);
@@ -31,6 +33,43 @@ export default function UploadDetailPage() {
   >(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+
+  const handleCheckout = async () => {
+    if (!id) {
+      toast({
+        title: "Error",
+        description: "No upload ID found",
+        variant: "destructive"
+      })
+      return
+    }
+    
+    setCheckoutLoading(true)
+    try {
+      const res = await fetch("/api/stripe/create-concierge-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ uploadId: id }),
+      })
+      
+      const data = await res.json()
+      
+      if (data.url) {
+        window.location.href = data.url
+      } else {
+        throw new Error(data.error || "Checkout failed")
+      }
+    } catch (err) {
+      toast({
+        title: "Checkout failed",
+        description: err instanceof Error ? err.message : "Please try again",
+        variant: "destructive"
+      })
+    } finally {
+      setCheckoutLoading(false)
+    }
+  }
 
   useEffect(() => {
     async function load() {
@@ -220,8 +259,12 @@ export default function UploadDetailPage() {
               <span className="text-sm text-slate-400">48-hour delivery</span>
             </div>
           </div>
-          <button className="bg-gradient-to-r from-violet-500 to-violet-600 hover:from-violet-400 hover:to-violet-500 text-white font-bold px-8 py-3 rounded-full shadow-lg shadow-violet-500/25 hover-scale transition-all text-lg border-2 border-violet-400/50 animate-pulse">
-            £299 Audit
+          <button
+            onClick={handleCheckout}
+            disabled={checkoutLoading}
+            className="bg-gradient-to-r from-violet-500 to-violet-600 hover:from-violet-400 hover:to-violet-500 text-white font-bold px-8 py-3 rounded-full shadow-lg shadow-violet-500/25 hover-scale transition-all text-lg border-2 border-violet-400/50 animate-pulse disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {checkoutLoading ? "Redirecting to Stripe..." : "£299 Audit"}
           </button>
         </div>
       </div>

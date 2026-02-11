@@ -2,9 +2,10 @@
 
 import { metadata } from "./metadata";
 import "./globals.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
+import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 
 export default function RootLayout({
   children,
@@ -12,6 +13,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  
+  useEffect(() => {
+    const supabase = createBrowserSupabaseClient();
+    supabase.auth.getUser().then(({ data }) => {
+      setUser(data.user);
+    });
+    
+    // Listen for auth changes
+    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+    });
+    
+    return () => listener.subscription.unsubscribe();
+  }, []);
 
   return (
     <html lang="en">
@@ -46,18 +62,40 @@ export default function RootLayout({
             </div>
             <div className="flex items-center gap-2 sm:gap-4">
               <div className="hidden sm:flex items-center gap-2">
-                <Link 
-                  href="/login" 
-                  className="px-3 py-2 text-sm text-slate-300 hover:text-white transition-colors"
-                >
-                  Login
-                </Link>
-                <Link 
-                  href="/signup" 
-                  className="px-4 py-2 sm:px-6 sm:py-3 bg-gradient-to-r from-violet-500 to-violet-600 hover:from-violet-400 hover:to-violet-500 text-white font-semibold rounded-lg hover-scale transition-all text-sm sm:text-base"
-                >
-                  Get Started
-                </Link>
+                {user ? (
+                  <>
+                    <Link 
+                      href="/dashboard" 
+                      className="px-3 py-2 text-sm text-slate-300 hover:text-white transition-colors"
+                    >
+                      Dashboard
+                    </Link>
+                    <button 
+                      onClick={() => {
+                        const supabase = createBrowserSupabaseClient();
+                        supabase.auth.signOut();
+                      }}
+                      className="px-3 py-2 text-sm text-slate-300 hover:text-white transition-colors"
+                    >
+                      Sign out
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link 
+                      href="/login" 
+                      className="px-3 py-2 text-sm text-slate-300 hover:text-white transition-colors"
+                    >
+                      Login
+                    </Link>
+                    <Link 
+                      href="/signup" 
+                      className="px-4 py-2 sm:px-6 sm:py-3 bg-gradient-to-r from-violet-500 to-violet-600 hover:from-violet-400 hover:to-violet-500 text-white font-semibold rounded-lg hover-scale transition-all text-sm sm:text-base"
+                    >
+                      Get Started
+                    </Link>
+                  </>
+                )}
               </div>
               {/* Mobile menu button */}
               <button 
@@ -87,20 +125,44 @@ export default function RootLayout({
                   Dashboard
                 </Link>
                 <div className="pt-2 border-t border-slate-800/50 space-y-2">
-                  <Link 
-                    href="/login" 
-                    className="block px-4 py-3 text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    Login
-                  </Link>
-                  <Link 
-                    href="/signup" 
-                    className="block px-4 py-3 bg-gradient-to-r from-violet-500 to-violet-600 hover:from-violet-400 hover:to-violet-500 text-white font-semibold rounded-lg transition-all text-center"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    Get Started
-                  </Link>
+                  {user ? (
+                    <>
+                      <Link 
+                        href="/dashboard" 
+                        className="block px-4 py-3 text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        Dashboard
+                      </Link>
+                      <button 
+                        onClick={() => {
+                          const supabase = createBrowserSupabaseClient();
+                          supabase.auth.signOut();
+                          setMobileMenuOpen(false);
+                        }}
+                        className="block px-4 py-3 text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition-colors w-full text-left"
+                      >
+                        Sign out
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <Link 
+                        href="/login" 
+                        className="block px-4 py-3 text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        Login
+                      </Link>
+                      <Link 
+                        href="/signup" 
+                        className="block px-4 py-3 bg-gradient-to-r from-violet-500 to-violet-600 hover:from-violet-400 hover:to-violet-500 text-white font-semibold rounded-lg transition-all text-center"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        Get Started
+                      </Link>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
