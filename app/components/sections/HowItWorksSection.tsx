@@ -44,11 +44,27 @@ export const HowItWorksSection = () => {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             {steps.map((step) => (
               <div
                 key={step.number}
-                className="surface rounded-2xl p-6 lg:p-8 card-hover relative"
+                className="tilt-card surface rounded-2xl p-6 lg:p-8 card-hover relative"
+                onMouseMove={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const x = e.clientX - rect.left;
+                  const y = e.clientY - rect.top;
+                  const centerX = rect.width / 2;
+                  const centerY = rect.height / 2;
+                  const rotateX = (y - centerY) / 10;
+                  const rotateY = (centerX - x) / 10;
+                  
+                  e.currentTarget.style.setProperty('--rotateX', `${rotateX}deg`);
+                  e.currentTarget.style.setProperty('--rotateY', `${rotateY}deg`);
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.setProperty('--rotateX', '0deg');
+                  e.currentTarget.style.setProperty('--rotateY', '0deg');
+                }}
               >
                 <div className="flex items-center gap-4 mb-6">
                   <span className="mono text-4xl font-bold text-blue-500/30">{step.number}</span>

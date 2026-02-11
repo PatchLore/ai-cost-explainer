@@ -64,13 +64,13 @@ export const HeroSection = ({ onUploadClick }: HeroSectionProps) => {
             </div>
 
             {/* Headline */}
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight">
               Cut your OpenAI bill by{' '}
               <span className="text-gradient">30-60%</span>
             </h1>
 
             {/* Subheadline */}
-            <p className="text-lg sm:text-xl text-gray-400 max-w-xl">
+            <p className="text-base sm:text-lg lg:text-xl text-gray-400 max-w-xl">
               Most teams overpay by 40% on AI. We find the waste. Upload your usage CSV. 
               Get an instant breakdown + an expert audit with custom fixes.
             </p>

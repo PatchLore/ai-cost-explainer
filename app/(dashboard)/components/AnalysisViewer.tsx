@@ -14,6 +14,23 @@ import {
 } from "recharts";
 import type { Recommendation } from "@/lib/recommendations";
 import { CopyButton } from "./CopyButton";
+import { useIntersectionObserver } from "@/lib/hooks/useIntersectionObserver";
+
+// Custom Tooltip Component for Glassmorphism
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (!active || !payload) return null;
+
+  return (
+    <div className="glass-strong p-3 border border-slate-700/50 shadow-2xl shadow-black/50">
+      <p className="text-sm text-slate-300 mb-1">{label}</p>
+      {payload.map((entry: any, index: number) => (
+        <p key={index} className="text-sm text-white">
+          {entry.dataKey === 'cost' ? `$${entry.value.toFixed(2)}` : entry.value}
+        </p>
+      ))}
+    </div>
+  );
+};
 
 interface AnalysisViewerProps {
   totalSpend: number;
@@ -36,141 +53,158 @@ export function AnalysisViewer({
     fullName: m.model,
   }));
 
+  // Chart animation refs
+  const [barChartRef, barChartVisible] = useIntersectionObserver({ threshold: 0.3 });
+  const [lineChartRef, lineChartVisible] = useIntersectionObserver({ threshold: 0.3 });
+
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-          <p className="text-sm font-medium text-slate-500">Total Spend</p>
-          <p className="text-2xl font-bold text-slate-800">
-            ${totalSpend.toFixed(2)}
-          </p>
-        </div>
-        <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-          <p className="text-sm font-medium text-slate-500">Total Requests</p>
-          <p className="text-2xl font-bold text-slate-800">
-            {totalRequests.toLocaleString()}
-          </p>
-        </div>
-      </div>
-
-      {barData.length > 0 && (
-        <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-          <h3 className="mb-3 font-semibold text-slate-800">
-            Cost by Model (Bar)
-          </h3>
-          <div className="h-64">
+      {/* Main Chart Area */}
+      <div className="glass-strong p-6 rounded-xl border border-slate-800/80 shadow-2xl shadow-black/50">
+        <h3 className="text-lg font-semibold text-white mb-4">Cost Analysis</h3>
+        
+        {/* Bar Chart */}
+        {barData.length > 0 && (
+          <div className="h-64 sm:h-72 lg:h-80 mb-8" ref={barChartRef}>
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={barData} margin={{ top: 8, right: 8, left: 8, bottom: 8 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+              <BarChart 
+                data={barData} 
+                margin={{ top: 10, right: 10, left: 10, bottom: 20 }}
+                className={barChartVisible ? 'chart-enter-active' : 'chart-enter'}
+              >
+                <CartesianGrid stroke="#334155" strokeDasharray="2 2" />
                 <XAxis
                   dataKey="name"
-                  tick={{ fontSize: 11 }}
+                  tick={{ fontSize: 12, fill: '#94a3b8' }}
                   tickFormatter={(_, i) => barData[i]?.fullName?.slice(0, 12) ?? ""}
+                  axisLine={{ stroke: '#334155' }}
+                  tickLine={{ stroke: '#334155' }}
                 />
-                <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `$${v}`} />
-                <Tooltip
-                  formatter={(value: number) => [`$${value.toFixed(2)}`, "Cost"]}
-                  labelFormatter={(_, payload) =>
-                    payload?.[0]?.payload?.fullName ?? ""
-                  }
+                <YAxis
+                  tick={{ fontSize: 12, fill: '#94a3b8' }}
+                  tickFormatter={(v) => `$${v}`}
+                  axisLine={{ stroke: '#334155' }}
+                  tickLine={{ stroke: '#334155' }}
                 />
-                <Bar dataKey="cost" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                <Tooltip content={<CustomTooltip />} />
+                <Bar 
+                  dataKey="cost" 
+                  fill="url(#violetGradient)" 
+                  radius={[4, 4, 0, 0]}
+                  stroke="#8b5cf6"
+                  strokeWidth={1}
+                  animationDuration={1000}
+                  animationEasing="ease-out"
+                />
+                <defs>
+                  <linearGradient id="violetGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#8b5cf6" />
+                    <stop offset="100%" stopColor="#7c3aed" />
+                  </linearGradient>
+                </defs>
               </BarChart>
             </ResponsiveContainer>
           </div>
-        </div>
-      )}
+        )}
 
-      {spendByDay.length > 0 && (
-        <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-          <h3 className="mb-3 font-semibold text-slate-800">
-            Spend Over Time (Line)
-          </h3>
-          <div className="h-64">
+        {/* Line Chart */}
+        {spendByDay.length > 0 && (
+          <div className="h-80" ref={lineChartRef}>
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
                 data={spendByDay.map((d) => ({
                   ...d,
                   cost: Number(d.cost.toFixed(2)),
                 }))}
-                margin={{ top: 8, right: 8, left: 8, bottom: 8 }}
+                margin={{ top: 10, right: 10, left: 10, bottom: 10 }}
+                className={lineChartVisible ? 'chart-enter-active' : 'chart-enter'}
               >
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis dataKey="date" tick={{ fontSize: 11 }} />
-                <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `$${v}`} />
-                <Tooltip
-                  formatter={(value: number) => [`$${value.toFixed(2)}`, "Cost"]}
+                <CartesianGrid stroke="#334155" strokeDasharray="2 2" />
+                <XAxis 
+                  dataKey="date" 
+                  tick={{ fontSize: 12, fill: '#94a3b8' }}
+                  axisLine={{ stroke: '#334155' }}
+                  tickLine={{ stroke: '#334155' }}
                 />
+                <YAxis
+                  tick={{ fontSize: 12, fill: '#94a3b8' }}
+                  tickFormatter={(v) => `$${v}`}
+                  axisLine={{ stroke: '#334155' }}
+                  tickLine={{ stroke: '#334155' }}
+                />
+                <Tooltip content={<CustomTooltip />} />
                 <Legend />
                 <Line
                   type="monotone"
                   dataKey="cost"
-                  stroke="#059669"
-                  strokeWidth={2}
-                  dot={{ r: 3 }}
+                  stroke="#10b981"
+                  strokeWidth={3}
+                  dot={{ r: 4, fill: '#ffffff', stroke: '#10b981', strokeWidth: 2 }}
                   name="Daily spend"
+                  animationDuration={1000}
+                  animationEasing="ease-out"
                 />
               </LineChart>
             </ResponsiveContainer>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
+      {/* Top Models List */}
       {topModels.length > 0 && (
-        <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-          <h3 className="mb-3 font-semibold text-slate-800">Top Models by Cost</h3>
-          <ul className="space-y-2">
+        <div className="glass-strong p-6 rounded-xl border border-slate-800/80 shadow-2xl shadow-black/50">
+          <h3 className="text-lg font-semibold text-white mb-4">Top Models by Cost</h3>
+          <div className="space-y-3">
             {topModels.map((m) => (
-              <li
-                key={m.model}
-                className="flex justify-between text-sm text-slate-600"
-              >
-                <span>{m.model}</span>
-                <span>
-                  ${m.cost.toFixed(2)} · {m.tokens.toLocaleString()} tokens
-                </span>
-              </li>
+              <div key={m.model} className="flex items-center justify-between glass p-3 rounded-lg border border-slate-700/50">
+                <div>
+                  <p className="text-slate-100 font-medium text-sm">{m.model}</p>
+                  <p className="text-slate-400 text-xs">{m.tokens.toLocaleString()} tokens</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-emerald-400 font-bold text-sm">${m.cost.toFixed(2)}</p>
+                </div>
+              </div>
             ))}
-          </ul>
+          </div>
         </div>
       )}
 
+      {/* Recommendations */}
       {recommendations.length > 0 && (
-        <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-          <h3 className="mb-3 font-semibold text-slate-800">
-            Automated Recommendations
-          </h3>
-          <ul className="space-y-4">
+        <div className="glass-strong p-6 rounded-xl border border-slate-800/80 shadow-2xl shadow-black/50">
+          <h3 className="text-lg font-semibold text-white mb-4">Automated Recommendations</h3>
+          <div className="space-y-4">
             {recommendations.map((r) => (
-              <li
-                key={r.id}
-                className="rounded border-l-4 border-slate-300 bg-slate-50 p-3 pl-4"
-                style={{
-                  borderLeftColor:
-                    r.severity === "high"
-                      ? "#dc2626"
-                      : r.severity === "medium"
-                        ? "#d97706"
-                        : "#059669",
-                }}
-              >
-                <p className="font-medium text-slate-800">{r.title}</p>
-                <p className="text-sm text-slate-600">{r.description}</p>
-                <p className="mt-1 text-sm font-medium text-slate-700">
-                  Impact: {r.impact}
-                </p>
-                <p className="text-sm text-slate-600">Action: {r.action}</p>
-                {r.codeSnippet && (
-                  <div className="relative mt-2">
-                    <CopyButton codeString={r.codeSnippet} />
-                    <pre className="overflow-x-auto rounded bg-slate-800 p-2 pr-10 text-xs text-slate-100">
-                      {r.codeSnippet}
-                    </pre>
+              <div key={r.id} className="glass p-4 rounded-lg border border-slate-700/50">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-3 h-3 rounded-full ${
+                      r.severity === 'high' ? 'bg-red-500' : 
+                      r.severity === 'medium' ? 'bg-amber-500' : 'bg-emerald-500'
+                    }`}></div>
+                    <div>
+                      <h4 className="text-slate-100 font-semibold text-sm">{r.title}</h4>
+                      <p className="text-slate-400 text-sm mt-1">{r.description}</p>
+                    </div>
                   </div>
-                )}
-              </li>
+                  <div className="text-right">
+                    <span className="text-xs text-emerald-400 border border-emerald-500/20 px-2 py-1 rounded">
+                      Impact: £{(r.impact as string)?.replace('$', '') || '0'}/month
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <p className="text-slate-400 text-sm">Action: {r.action}</p>
+                  {r.codeSnippet && (
+                    <button className="text-xs text-slate-300 border border-slate-700 hover:bg-slate-800 px-3 py-1 rounded transition-colors hover-scale">
+                      Copy Code
+                    </button>
+                  )}
+                </div>
+              </div>
             ))}
-          </ul>
+          </div>
         </div>
       )}
     </div>
