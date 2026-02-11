@@ -31,9 +31,18 @@ export default function RootLayout({
 
   return (
     <html lang="en">
+      <head>
+        {/* Preconnect to external services */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://api.openai.com" />
+        <link rel="preconnect" href="https://supabase.co" />
+        <link rel="preconnect" href="https://js.stripe.com" />
+        <link rel="preconnect" href="https://m.stripe.network" />
+      </head>
       <body className="antialiased bg-gradient-mesh">
-        {/* Navigation */}
-        <nav className="stagger-fade fixed top-0 left-0 right-0 z-50 bg-slate-950/90 backdrop-blur-xl border-b border-slate-800/50 px-4 sm:px-6 lg:px-8 py-4">
+        {/* Header with Navigation */}
+        <header className="stagger-fade fixed top-0 left-0 right-0 z-50 bg-slate-950/90 backdrop-blur-xl border-b border-slate-800/50 px-4 sm:px-6 lg:px-8 py-4">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
             <div className="flex items-center gap-4 sm:gap-8">
               {/* Logo - MUST use Link component */}
@@ -44,8 +53,8 @@ export default function RootLayout({
                 AI Cost Explainer
               </Link>
               
-              {/* Desktop Nav */}
-              <div className="hidden lg:flex items-center gap-8">
+              {/* Desktop Navigation */}
+              <nav aria-label="Main navigation" className="hidden lg:flex items-center gap-8">
                 <Link href="/#how-it-works" className="text-slate-400 hover:text-white transition-colors text-sm sm:text-base">
                   How It Works
                 </Link>
@@ -58,10 +67,10 @@ export default function RootLayout({
                 >
                   Dashboard
                 </Link>
-              </div>
+              </nav>
             </div>
             <div className="flex items-center gap-2 sm:gap-4">
-              <div className="hidden sm:flex items-center gap-2">
+              <nav aria-label="User navigation" className="hidden sm:flex items-center gap-2">
                 {user ? (
                   <>
                     <Link 
@@ -96,11 +105,12 @@ export default function RootLayout({
                     </Link>
                   </>
                 )}
-              </div>
+              </nav>
               {/* Mobile menu button */}
               <button 
                 className="lg:hidden p-2"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                aria-label="Toggle mobile menu"
               >
                 {mobileMenuOpen ? (
                   <X className="w-6 h-6 text-white" />
@@ -167,12 +177,52 @@ export default function RootLayout({
               </div>
             </div>
           )}
-        </nav>
+        </header>
 
         {/* Main Content with spacing for fixed nav */}
         <main className="pt-20">
           {children}
         </main>
+
+        {/* Footer */}
+        <footer className="bg-slate-950 border-t border-slate-800/50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+              <div className="col-span-1 md:col-span-2">
+                <h3 className="text-xl font-bold text-white mb-4">AI Cost Explainer</h3>
+                <p className="text-slate-400 mb-4">
+                  Helping engineering teams optimize their OpenAI costs through instant analysis and expert audits.
+                </p>
+                <div className="flex gap-4">
+                  <a href="#" className="text-slate-400 hover:text-white transition-colors">Twitter</a>
+                  <a href="#" className="text-slate-400 hover:text-white transition-colors">LinkedIn</a>
+                  <a href="#" className="text-slate-400 hover:text-white transition-colors">GitHub</a>
+                </div>
+              </div>
+              <div>
+                <h4 className="text-lg font-semibold text-white mb-4">Product</h4>
+                <ul className="space-y-2 text-slate-400">
+                  <li><a href="/#how-it-works" className="hover:text-white transition-colors">How It Works</a></li>
+                  <li><a href="/pricing" className="hover:text-white transition-colors">Pricing</a></li>
+                  <li><a href="/sample-report" className="hover:text-white transition-colors">Sample Report</a></li>
+                  <li><a href="/dashboard" className="hover:text-white transition-colors">Dashboard</a></li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="text-lg font-semibold text-white mb-4">Company</h4>
+                <ul className="space-y-2 text-slate-400">
+                  <li><a href="#" className="hover:text-white transition-colors">About Us</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">Blog</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">Contact</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
+                </ul>
+              </div>
+            </div>
+            <div className="border-t border-slate-800/50 mt-8 pt-8 text-center text-slate-500">
+              <p>&copy; {new Date().getFullYear()} AI Cost Explainer. All rights reserved.</p>
+            </div>
+          </div>
+        </footer>
       </body>
     </html>
   );
