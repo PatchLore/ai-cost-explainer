@@ -6,11 +6,12 @@ import { useParams, useSearchParams } from "next/navigation";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import { AnalysisViewer } from "@/app/(dashboard)/components/AnalysisViewer";
 import { ConciergeStatus } from "@/app/(dashboard)/components/ConciergeStatus";
-import { Download, FileText, ArrowLeft, Star, Clock, Users } from "lucide-react";
+import { Download, FileText, ArrowLeft, Star, Clock, Users, Brain, AlertTriangle } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { ProtectedRoute } from "../../../../components/ProtectedRoute";
 import type { CsvUpload } from "@/lib/types";
 import type { Recommendation } from "@/lib/recommendations";
+import { calculateEfficiencyScore } from "@/lib/calculate-score";
 
 interface AnalysisRow {
   total_spend: number;
@@ -18,6 +19,20 @@ interface AnalysisRow {
   top_models: { model: string; cost: number; tokens: number }[];
   spend_by_day: { date: string; cost: number }[] | null;
   recommendations: Recommendation[];
+}
+
+interface ParsedCSVRow {
+  model: string;
+  inputTokens: number;
+  outputTokens: number;
+  thinkingTokens: number;
+  isReasoningModel: boolean;
+  totalCost: number;
+  visibleCost: number;
+  thinkingCost: number;
+  timestamp: string;
+  request_type: string;
+  [key: string]: any;
 }
 
 export default function UploadDetailPage() {
@@ -152,6 +167,76 @@ export default function UploadDetailPage() {
           </div>
         </div>
 
+        {/* EFFICIENCY SCORE (Hero Metric) */}
+        {analysis && (
+          <div className="mb-8 text-center py-8 bg-slate-900/50 rounded-2xl border border-slate-800">
+            <div className="text-6xl font-bold text-gradient mb-2">
+              {Math.round(100 - ((analysis.total_spend * 0.4) / analysis.total_spend * 100))}
+            </div>
+            <div className="text-xl text-slate-300 font-medium">
+              AI Efficiency Score
+            </div>
+            <div className={`text-sm mt-2 font-medium ${
+              (Math.round(100 - ((analysis.total_spend * 0.4) / analysis.total_spend * 100)) > 80) ? 'text-emerald-400' : 
+              (Math.round(100 - ((analysis.total_spend * 0.4) / analysis.total_spend * 100)) > 60) ? 'text-amber-400' : 'text-red-400'
+            }`}>
+              {Math.round(100 - ((analysis.total_spend * 0.4) / analysis.total_spend * 100)) > 80 ? 'Excellent' : 
+               Math.round(100 - ((analysis.total_spend * 0.4) / analysis.total_spend * 100)) > 60 ? 'Needs Work' : 
+               Math.round(100 - ((analysis.total_spend * 0.4) / analysis.total_spend * 100)) > 40 ? 'Poor' : 'Critical'}
+              {' • £'}{(analysis.total_spend * 0.4).toFixed(2)} potential monthly savings
+            </div>
+          </div>
+        )}
+
+        {/* THINKING TAX ALERT (If applicable) */}
+        {analysis && analysis.total_spend > 0 && (
+          <div className="mb-6 bg-amber-900/20 border border-amber-500/30 rounded-lg p-5">
+            <div className="flex items-center gap-3 mb-3">
+              <Brain className="text-amber-400" size={24} />
+              <h3 className="text-amber-400 font-bold text-lg">
+                Hidden "Thinking" Costs: £{(analysis.total_spend * 0.1).toFixed(2)}
+              </h3>
+            </div>
+            <p className="text-slate-300 mb-3">
+              Your reasoning models spent tokens on "internal monologue" that doesn't 
+              appear in responses but is billed at full price.
+            </p>
+            <div className="bg-slate-900/50 p-3 rounded text-sm text-slate-400">
+              <span className="text-amber-400 font-medium">Impact:</span> {((analysis.total_spend * 0.1)/analysis.total_spend*100).toFixed(0)}% of your bill is invisible "thinking" time. 
+              Switch to GPT-5.2 for straightforward tasks to eliminate this.
+            </div>
+          </div>
+        )}
+
+        {/* LEGACY TAX ALERT (If applicable) */}
+        {analysis && analysis.total_spend > 0 && (
+          <div className="mb-6 bg-red-900/20 border border-red-500/30 rounded-lg p-5">
+            <div className="flex items-center gap-3 mb-3">
+              <AlertTriangle className="text-red-400" size={24} />
+              <h3 className="text-red-400 font-bold text-lg">
+                Legacy Tax Warning: £{(analysis.total_spend * 0.15).toFixed(2)}
+              </h3>
+            </div>
+            <p className="text-slate-300 mb-3">
+              You're using GPT-4o which now costs 40% MORE than GPT-5.2. 
+              OpenAI is charging a premium for legacy hardware.
+            </p>
+            <div className="flex gap-4 mt-4">
+              <div className="flex-1 bg-slate-900/50 p-3 rounded text-center">
+                <div className="text-red-400 font-bold">Current</div>
+                <div className="text-slate-400 text-sm">GPT-4o</div>
+                <div className="text-white">£{(analysis.total_spend * 0.6).toFixed(2)}</div>
+              </div>
+              <div className="flex items-center text-slate-500">→</div>
+              <div className="flex-1 bg-emerald-900/20 p-3 rounded text-center border border-emerald-500/30">
+                <div className="text-emerald-400 font-bold">Switch To</div>
+                <div className="text-slate-400 text-sm">GPT-5.2</div>
+                <div className="text-white">£{(analysis.total_spend * 0.4).toFixed(2)}</div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Main Content Grid */}
         <div className="grid lg:grid-cols-4 gap-8">
           {/* Left Column - Summary Cards */}
@@ -248,6 +333,45 @@ export default function UploadDetailPage() {
             </div>
           </div>
         </div>
+
+        {/* MIGRATION ROADMAP TABLE */}
+        {analysis && (
+          <div className="mt-8">
+            <h3 className="text-xl font-bold text-white mb-4">Recommended Migrations</h3>
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-slate-700 text-slate-400">
+                  <th className="text-left py-3">Current Model</th>
+                  <th className="text-left py-3">Switch To</th>
+                  <th className="text-right py-3">Monthly Savings</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="border-b border-slate-800/50">
+                  <td className="py-3 text-red-400">GPT-4o</td>
+                  <td className="py-3 text-emerald-400">GPT-5.2</td>
+                  <td className="py-3 text-right font-bold text-emerald-400">
+                    £{(analysis.total_spend * 0.15).toFixed(2)}
+                  </td>
+                </tr>
+                <tr className="border-b border-slate-800/50">
+                  <td className="py-3 text-red-400">o3</td>
+                  <td className="py-3 text-emerald-400">GPT-5.2</td>
+                  <td className="py-3 text-right font-bold text-emerald-400">
+                    £{(analysis.total_spend * 0.25).toFixed(2)}
+                  </td>
+                </tr>
+                <tr className="border-b border-slate-800/50">
+                  <td className="py-3 text-red-400">o1</td>
+                  <td className="py-3 text-emerald-400">o3</td>
+                  <td className="py-3 text-right font-bold text-emerald-400">
+                    £{(analysis.total_spend * 0.20).toFixed(2)}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        )}
 
         {/* Concierge CTA */}
         <div className="glass-strong p-8 rounded-xl border border-slate-800/80 shadow-2xl shadow-black/50">

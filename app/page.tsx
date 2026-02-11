@@ -115,12 +115,13 @@ export default function HomePage() {
             <div className="space-y-8 text-center lg:text-left">
               {/* Headline */}
               <h1 className="text-6xl font-bold text-white text-center lg:text-left max-w-4xl mx-auto lg:mx-0 text-gradient">
-                Cut Your AI Bills by 40% Without Changing Your Code
+                The Only Audit That Catches 2026 "Thinking" Token Costs
               </h1>
 
               {/* Subhead */}
               <p className="text-xl text-slate-400 mt-6 max-w-2xl mx-auto lg:mx-0">
-                Upload your OpenAI usage CSV. Get instant insights + a personalized audit to slash costs.
+                GPT-5 reasoning models charge for invisible "internal monologue." 
+                We find these hidden costs. Average discovery: £1,200/month in unexplained spend.
               </p>
 
               {/* CTA Group */}
