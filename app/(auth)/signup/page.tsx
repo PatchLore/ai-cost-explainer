@@ -15,20 +15,24 @@ export default function SignupPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    console.log('Sign up form submitted');
     setError(null);
     setMessage(null);
     setLoading(true);
     try {
       const supabase = createBrowserSupabaseClient();
+      console.log('Attempting to sign up user:', email);
       const { error: err } = await supabase.auth.signUp({
         email,
         password,
         options: { emailRedirectTo: `${typeof window !== "undefined" ? window.location.origin : ""}/dashboard` },
       });
       if (err) throw err;
+      console.log('Sign up successful, showing message');
       setMessage("Check your email for the confirmation link.");
       router.refresh();
     } catch (err) {
+      console.error('Sign up error:', err);
       setError(err instanceof Error ? err.message : "Sign up failed");
     } finally {
       setLoading(false);
