@@ -3,6 +3,19 @@ import { createServerSupabase } from "@/lib/supabase";
 import { generateRecommendations } from "@/lib/recommendations";
 import type { ParsedCSVRow } from "@/lib/csv-parser";
 
+// Add this function before line 67
+function mapToUsageRow(parsed: ParsedCSVRow): any {
+  return {
+    model: parsed.model,
+    tokens_used: parsed.inputTokens + parsed.outputTokens + parsed.thinkingTokens,
+    cost: parsed.totalCost,
+    timestamp: parsed.timestamp || new Date().toISOString(),
+    line_item: `${parsed.model}:${parsed.inputTokens}+${parsed.outputTokens}`,
+    amount_value: parsed.totalCost,
+    amount_currency: 'USD'
+  };
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { uploadId } = await req.json();
@@ -64,7 +77,7 @@ export async function POST(req: NextRequest) {
       console.warn(`Warning: ${invalidRows} rows had invalid or missing cost data and were skipped`);
     }
 
-    const recommendations = generateRecommendations(validRows);
+    const recommendations = generateRecommendations(validRows.map(mapToUsageRow));
     const totalSpend = validRows.reduce((acc, r) => acc + r.cost, 0);
     const totalRequests = validRows.length;
     const modelCosts: Record<string, { cost: number; tokens: number }> = {};

@@ -2,16 +2,26 @@ import { parse } from 'csv-parse/sync';
 import { modelCategories } from './model-catalog';
 
 export interface ParsedCSVRow {
+  // New 2026 fields
   model: string;
   inputTokens: number;
   outputTokens: number;
   thinkingTokens: number;
   isReasoningModel: boolean;
+  inputCost: number;
+  outputCost: number;
+  thinkingCost: number;
   totalCost: number;
   visibleCost: number;
-  thinkingCost: number;
+  
+  // Backwards compatibility fields (required by existing UsageRow type)
+  tokens_used: number;
+  cost: number;
   timestamp: string;
   request_type: string;
+  line_item?: string;
+  amount_value?: number;
+  amount_currency?: string;
   [key: string]: any;
 }
 
@@ -81,16 +91,27 @@ export function parseOpenAICSV(csvText: string): ParsedCSVRow[] {
       }
 
       return {
+        // New 2026 fields
         model: modelKey,
         inputTokens,
         outputTokens,
         thinkingTokens,
         isReasoningModel,
+        inputCost: (inputTokens / 1000000) * (model?.costPer1mInput || 0),
+        outputCost: (outputTokens / 1000000) * (model?.costPer1mOutput || 0),
+        thinkingCost,
         totalCost,
         visibleCost,
-        thinkingCost,
+        
+        // Backwards compatibility fields (required by existing UsageRow type)
+        tokens_used: inputTokens + outputTokens + thinkingTokens,
+        cost: totalCost,
         timestamp: row['Timestamp'] || row['timestamp'] || row['Time'] || row['date'] || '',
         request_type: row['Request Type'] || row['request_type'] || row['Operation'] || row['operation'] || '',
+        line_item: row['line_item'] || row['Model'] || row['model'] || '',
+        amount_value: totalCost,
+        amount_currency: row['amount_currency'] || 'USD',
+        
         // Keep raw data too
         ...row
       };

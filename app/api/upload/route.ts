@@ -5,6 +5,19 @@ import { parseOpenAICSV } from "@/lib/csv-parser";
 import { generateRecommendations } from "@/lib/recommendations";
 import { uploadRateLimit, getClientIp } from "@/lib/ratelimit";
 
+// Add this function before line 64
+function mapToUsageRow(parsed: any): any {
+  return {
+    model: parsed.model,
+    tokens_used: parsed.inputTokens + parsed.outputTokens + parsed.thinkingTokens,
+    cost: parsed.totalCost,
+    timestamp: parsed.timestamp || new Date().toISOString(),
+    line_item: `${parsed.model}:${parsed.inputTokens}+${parsed.outputTokens}`,
+    amount_value: parsed.totalCost,
+    amount_currency: 'USD'
+  };
+}
+
 function computeSpendByDay(
   rawData: { timestamp: string; cost: number }[]
 ): { date: string; cost: number }[] {
@@ -61,8 +74,8 @@ export async function POST(req: NextRequest) {
     // Read file as text and parse
     const csvText = await file.text();
     const rawData = parseOpenAICSV(csvText);
-    const recommendations = generateRecommendations(rawData);
-    const spendByDay = computeSpendByDay(rawData);
+    const recommendations = generateRecommendations(rawData.map(mapToUsageRow));
+    const spendByDay = computeSpendByDay(rawData.map(mapToUsageRow));
 
     const totalSpend = rawData.reduce((acc, r) => acc + r.cost, 0);
     const totalRequests = rawData.length;
