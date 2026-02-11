@@ -2,10 +2,11 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Upload, CheckCircle, Loader2 } from "lucide-react";
+import { Upload, CheckCircle, Loader2, AlertCircle } from "lucide-react";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 
 const MAX_FILE_BYTES = 10 * 1024 * 1024; // 10MB
+const UPLOAD_TIMEOUT = 30000; // 30 seconds
 
 interface CSVUploaderProps {
   userId: string;
@@ -19,6 +20,7 @@ export function CSVUploader({ userId, onComplete }: CSVUploaderProps) {
   const [processing, setProcessing] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [analysisProgress, setAnalysisProgress] = useState<string>("Analyzing your CSV...");
   const disabled = !userId || uploading || processing;
 
   // Client-side auth verification
@@ -42,12 +44,20 @@ export function CSVUploader({ userId, onComplete }: CSVUploaderProps) {
   const uploadFile = useCallback(
     async (file: File) => {
       setError(null);
+      setAnalysisProgress("Analyzing your CSV...");
+      
       if (file.size > MAX_FILE_BYTES) {
         setError("File must be 10MB or smaller.");
         return;
       }
       setUploading(true);
       setUploadProgress(0);
+      setProcessing(false);
+
+      // Calculate actual row count for display
+      const text = await file.text();
+      const lines = text.split('\n').filter(line => line.trim()).length;
+      setAnalysisProgress(`Analyzing ${lines} rows...`);
 
       // Simulate upload progress
       const progressInterval = setInterval(() => {
@@ -60,6 +70,16 @@ export function CSVUploader({ userId, onComplete }: CSVUploaderProps) {
         });
       }, 200);
 
+      // Set up timeout protection
+      const timeoutId = setTimeout(() => {
+        if (uploading) {
+          setError("Upload timed out. Please try again or contact support.");
+          setUploading(false);
+          setProcessing(false);
+          clearInterval(progressInterval);
+        }
+      }, UPLOAD_TIMEOUT);
+
       try {
         const formData = new FormData();
         formData.append("file", file);
@@ -71,27 +91,30 @@ export function CSVUploader({ userId, onComplete }: CSVUploaderProps) {
         const data = await res.json();
         
         clearInterval(progressInterval);
+        clearTimeout(timeoutId);
         setUploadProgress(100);
 
         if (!res.ok) throw new Error(data.error ?? "Upload failed");
         const uploadId = data.uploadId;
         
         if (uploadId) {
-          // Show processing state
+          // Show processing state with real row count
           setProcessing(true);
           setUploading(false);
+          setAnalysisProgress(`Processing ${lines} rows...`);
           
-          // Simulate processing time
-          setTimeout(() => {
-            onComplete(uploadId);
-            router.push(`/dashboard/upload/${uploadId}`);
-          }, 2000);
+          // Redirect immediately after successful upload (no artificial delay)
+          onComplete(uploadId);
+          router.push(`/dashboard/upload/${uploadId}`);
+        } else {
+          throw new Error("No upload ID received from server");
         }
       } catch (e) {
         console.error("Upload error:", e);
         setError(e instanceof Error ? e.message : "Upload failed");
         setUploading(false);
         setProcessing(false);
+        clearTimeout(timeoutId);
       }
     },
     [userId, onComplete, router]
@@ -177,7 +200,7 @@ export function CSVUploader({ userId, onComplete }: CSVUploaderProps) {
           <div className="flex justify-center mb-4">
             <div className="processing-spinner"></div>
           </div>
-          <h3 className="text-lg font-semibold text-white mb-2">Analyzing 50,000 rows...</h3>
+          <h3 className="text-lg font-semibold text-white mb-2">{analysisProgress}</h3>
           <p className="text-slate-300 mb-4">Our AI is processing your data to find cost optimization opportunities</p>
           <div className="flex justify-center">
             <CheckCircle className="w-8 h-8 text-emerald-400 success-check" />
