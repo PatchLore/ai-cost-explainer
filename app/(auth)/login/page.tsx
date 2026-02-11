@@ -10,12 +10,15 @@ import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 export default function LoginPage() {
   const router = useRouter();
   const [redirectTo, setRedirectTo] = useState("/dashboard");
+  const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
     try {
       const params = new URLSearchParams(window.location.search);
       const redirectedFrom = params.get("redirectedFrom");
+      const message = params.get("message");
       setRedirectTo(redirectedFrom || "/dashboard");
+      setMessage(message);
     } catch {
       setRedirectTo("/dashboard");
     }
@@ -48,6 +51,18 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
       <div className="w-full max-w-sm rounded-lg border border-slate-200 bg-white p-8 shadow-sm">
+        {/* Show contextual message for pricing page redirects */}
+        {message === 'upload-first' && (
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
+            <p className="text-amber-800 text-sm font-medium">
+              Upload your CSV to purchase the £299 Expert Audit
+            </p>
+            <p className="text-amber-600 text-xs mt-1">
+              Create an account to get started with your free analysis
+            </p>
+          </div>
+        )}
+        
         <h1 className="mb-6 text-xl font-bold text-slate-800">Sign in</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>

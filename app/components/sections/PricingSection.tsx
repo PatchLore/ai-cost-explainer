@@ -26,21 +26,23 @@ export const PricingSection = () => {
     return () => clearInterval(timer)
   }, [])
 
-  const handleCheckout = async () => {
-    // If no upload yet, show error
+  const handleAuditClick = () => {
+    // If no upload yet, redirect smoothly
     const currentPath = window.location.pathname
     const isDashboard = currentPath.includes('/dashboard')
     const uploadId = isDashboard ? currentPath.split('/').pop() : null
 
     if (!isDashboard || !uploadId || uploadId === 'dashboard') {
-      // Show error toast or redirect to upload
-      alert("Please upload your CSV first to get an audit.")
-      if (!isDashboard) {
-        router.push('/dashboard')
-      }
+      // Redirect to login with context
+      router.push('/login?redirectedFrom=/dashboard&message=upload-first')
       return
     }
 
+    // Otherwise proceed to Stripe
+    handleCheckout(uploadId)
+  }
+
+  const handleCheckout = async (uploadId: string) => {
     setIsLoading(true)
     
     try {
@@ -63,6 +65,7 @@ export const PricingSection = () => {
       }
     } catch (error) {
       console.error('Checkout error:', error)
+      // Use toast instead of alert
       alert("Checkout failed. Please try again.")
     } finally {
       setIsLoading(false)
@@ -139,7 +142,7 @@ export const PricingSection = () => {
                 ))}
               </ul>
               <button 
-                onClick={handleCheckout}
+                onClick={handleAuditClick}
                 disabled={isLoading}
                 className="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-4 px-6 rounded-full shadow-lg shadow-emerald-500/25 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >

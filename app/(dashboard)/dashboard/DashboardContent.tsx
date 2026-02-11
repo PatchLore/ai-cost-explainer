@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useSearchParams } from 'next/navigation';
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import { CSVUploader } from "@/app/(dashboard)/components/CSVUploader";
 import type { CsvUpload } from "@/lib/types";
@@ -14,6 +15,8 @@ export function DashboardContent({ user }: DashboardContentProps) {
   const [uploads, setUploads] = useState<CsvUpload[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const searchParams = useSearchParams();
+  const showUploadPrompt = searchParams.get('message') === 'upload-first';
 
   useEffect(() => {
     async function init() {
@@ -62,6 +65,18 @@ export function DashboardContent({ user }: DashboardContentProps) {
   return (
     <div className="space-y-8">
       <div className="space-y-4">
+        {/* Show upload prompt for users coming from pricing page */}
+        {showUploadPrompt && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <p className="text-blue-800 text-sm font-medium">
+              Upload your CSV to purchase the £299 Expert Audit
+            </p>
+            <p className="text-blue-700 text-xs mt-1">
+              Upload a file to get started with your free analysis, then upgrade to the expert audit
+            </p>
+          </div>
+        )}
+        
         <h1 className="text-2xl font-bold text-slate-800">Upload History</h1>
 
         <div className="grid md:grid-cols-2 gap-6 mb-8">
