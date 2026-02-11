@@ -24,7 +24,7 @@ export const FinalCTASection = () => {
             Upload your CSV. Get the breakdown.
           </h2>
           <p className="text-lg text-gray-400 mb-8">
-            Takes 30 seconds. No signup required for the free analysis.
+            Takes 30 seconds. Free analysis requires account creation.
           </p>
           <Link href="/login">
             <button className="inline-flex items-center gap-2 px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl transition-colors pulse-cta mb-6">

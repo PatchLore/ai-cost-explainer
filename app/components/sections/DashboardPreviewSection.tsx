@@ -76,7 +76,7 @@ export const DashboardPreviewSection = () => {
                 ))}
               </ul>
               <a
-                href="#upload"
+                href="/login"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-xl transition-colors"
               >
                 Try the free analysis
@@ -184,7 +184,7 @@ export const DashboardPreviewSection = () => {
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Potential Savings</p>
-                  <p className="text-lg font-semibold text-green-400 mono">£1,139</p>
+                  <p className="text-lg font-semibold text-green-400 mono">Significant</p>
                 </div>
               </div>
             </div>
