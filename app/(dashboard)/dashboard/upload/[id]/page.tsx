@@ -452,8 +452,7 @@ export default function UploadDetailPage() {
         {/* Concierge Status Logic */}
         {(() => {
           if (conciergeStatus === 'pending') {
-            // Show: "Expert Audit Pending - Delivery in 48 hours" (green badge)
-            // Hide the £299 purchase button
+            // Already paid - show status badge only
             return (
               <div className="glass-strong p-4 rounded-xl border border-emerald-500/20 bg-emerald-500/10 mb-6">
                 <div className="flex items-center gap-3">
@@ -464,25 +463,33 @@ export default function UploadDetailPage() {
               </div>
             );
           } else if (conciergeStatus === 'delivered') {
-            // Show: "View Your Audit" button
+            // Completed - show "Purchase New Audit" for repeat customers
             return (
-              <div className="glass-strong p-6 rounded-xl border border-emerald-500/20 bg-emerald-500/10 mb-6">
-                <div className="flex items-center justify-between">
+              <div className="bg-amber-900/30 border border-amber-500/50 rounded-lg p-4 mb-6">
+                <div className="flex items-start gap-3">
+                  <Lock className="text-amber-400 mt-1" size={20} />
                   <div>
-                    <h3 className="text-emerald-400 font-bold text-lg">Expert Audit Ready!</h3>
-                    <p className="text-slate-300 text-sm mt-1">Your personalized analysis is available</p>
+                    <h3 className="text-amber-400 font-semibold">Expert Audit Completed</h3>
+                    <p className="text-slate-300 text-sm mt-1">
+                      Your expert audit has been delivered. Ready for another analysis?
+                    </p>
+                    <div className="mt-3 flex gap-3">
+                      <Link href="/pricing">
+                        <Button size="sm" className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-medium">
+                          Purchase New Audit - £299
+                        </Button>
+                      </Link>
+                      <span className="text-xs text-slate-500 self-center">
+                        Includes code fixes & implementation guide
+                      </span>
+                    </div>
                   </div>
-                  <Link href={`/dashboard/upload/${id}/audit`}>
-                    <Button className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-6 py-2">
-                      View Your Audit
-                    </Button>
-                  </Link>
                 </div>
               </div>
             );
           } else {
             // concierge_status === 'none' (default)
-            // Show: "Get Expert Audit £299" button with upsell text
+            // Only show purchase button when free tier
             return (
               <div className="bg-amber-900/30 border border-amber-500/50 rounded-lg p-4 mb-6">
                 <div className="flex items-start gap-3">
