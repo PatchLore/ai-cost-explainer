@@ -16,6 +16,7 @@ export interface CsvUpload {
   provider: string;
   status: CsvUploadStatus;
   raw_data: unknown;
+  analysis_data: unknown;
   created_at: string;
   tier: CsvUploadTier;
   concierge_status: 'none' | 'pending' | 'delivered';

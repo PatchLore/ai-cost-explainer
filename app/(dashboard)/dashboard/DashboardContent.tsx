@@ -45,23 +45,24 @@ export function DashboardContent({ user }: DashboardContentProps) {
   const onUploadComplete = (uploadId: string) => {
     if (!userId) return;
     setUploads((prev) => {
-      const added: CsvUpload = {
-        id: uploadId,
-        user_id: userId,
-        filename: null,
-        storage_path: null,
-        file_size: null,
-        provider: "openai",
-        status: "completed",
-        raw_data: [],
-        created_at: new Date().toISOString(),
-        tier: "self_serve",
-        concierge_status: 'none',
-        stripe_payment_intent_id: null,
-        loom_video_url: null,
-        consultant_notes: null,
-        savings_estimate: null,
-      };
+        const added: CsvUpload = {
+          id: uploadId,
+          user_id: userId,
+          filename: null,
+          storage_path: null,
+          file_size: null,
+          provider: "openai",
+          status: "completed",
+          raw_data: [],
+          analysis_data: null,
+          created_at: new Date().toISOString(),
+          tier: "self_serve",
+          concierge_status: 'none',
+          stripe_payment_intent_id: null,
+          loom_video_url: null,
+          consultant_notes: null,
+          savings_estimate: null,
+        };
       return [added, ...prev];
     });
   };
