@@ -326,60 +326,132 @@ export default function UploadDetailPage() {
               />
             ) : (
               <div className="glass-strong p-8 rounded-xl border border-slate-800/80 shadow-2xl shadow-black/50">
-                {conciergeStatus === 'pending' ? (
+                {conciergeStatus === 'none' ? (
+                  // FREE USER: No paid audit yet
                   <div className="text-center">
-                        {upload?.analysis_data ? (
-                          // FLOW 1: Has CSV already (analysis_data exists) - Show real parsed data
-                          <div className="space-y-6">
-                            {/* Show real numbers from analysis_data */}
-                            <div className="grid grid-cols-3 gap-4 mb-6">
-                              <div className="glass-strong p-4 rounded-xl border border-slate-800/80">
-                                <div className="text-sm text-slate-400">Total Spend</div>
-                                <div className="text-2xl font-bold text-white mt-1">
-                                  ${upload.analysis_data.total_spend?.toFixed(2) || '0.00'}
-                                </div>
-                              </div>
-                              <div className="glass-strong p-4 rounded-xl border border-slate-800/80">
-                                <div className="text-sm text-slate-400">Total Requests</div>
-                                <div className="text-2xl font-bold text-white mt-1">
-                                  {upload.analysis_data.total_requests?.toLocaleString() || '0'}
-                                </div>
-                              </div>
-                              <div className="glass-strong p-4 rounded-xl border border-slate-800/80">
-                                <div className="text-sm text-slate-400">Potential Savings</div>
-                                <div className="text-2xl font-bold text-emerald-400 mt-1">
-                                  ${((upload.analysis_data.total_spend || 0) * 0.4).toFixed(2)}
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Show charts if available */}
-                            {upload.analysis_data.spend_by_day && (
-                              <div className="mb-6">
-                                <h4 className="text-white font-semibold mb-3">Spending Over Time</h4>
-                                <div className="bg-slate-900/50 p-4 rounded">
-                                  <p className="text-slate-400 text-sm">Chart data available: {upload.analysis_data.spend_by_day.length} days</p>
-                                </div>
-                              </div>
-                            )}
-
-                            {/* Expert Audit Confirmed message */}
-                            <div className="bg-green-50 border border-green-200 p-4 rounded">
-                              <h2 className="text-green-800 font-semibold text-lg mb-2">Expert Audit Confirmed</h2>
-                              <p className="text-green-700 mb-2">
-                                Thanks for submitting! Your expert analysis will be delivered in 48 hours.
-                              </p>
-                              <p className="text-green-700">
-                                Your CSV has been received and is being processed by our experts.
-                              </p>
-                            </div>
-                            
-                            <div className="mt-4">
-                              <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium">
-                                Expert Audit Pending • Delivery in 48 hours
-                              </span>
+                    {upload?.analysis_data ? (
+                      // FLOW 1: Has CSV already - Show real parsed data
+                      <div className="space-y-6">
+                        {/* Show real numbers from analysis_data */}
+                        <div className="grid grid-cols-3 gap-4 mb-6">
+                          <div className="glass-strong p-4 rounded-xl border border-slate-800/80">
+                            <div className="text-sm text-slate-400">Total Spend</div>
+                            <div className="text-2xl font-bold text-white mt-1">
+                              ${upload.analysis_data.total_spend?.toFixed(2) || '0.00'}
                             </div>
                           </div>
+                          <div className="glass-strong p-4 rounded-xl border border-slate-800/80">
+                            <div className="text-sm text-slate-400">Total Requests</div>
+                            <div className="text-2xl font-bold text-white mt-1">
+                              {upload.analysis_data.total_requests?.toLocaleString() || '0'}
+                            </div>
+                          </div>
+                          <div className="glass-strong p-4 rounded-xl border border-slate-800/80">
+                            <div className="text-sm text-slate-400">Potential Savings</div>
+                            <div className="text-2xl font-bold text-emerald-400 mt-1">
+                              ${((upload.analysis_data.total_spend || 0) * 0.4).toFixed(2)}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Show charts if available */}
+                        {upload.analysis_data.spend_by_day && (
+                          <div className="mb-6">
+                            <h4 className="text-white font-semibold mb-3">Spending Over Time</h4>
+                            <div className="bg-slate-900/50 p-4 rounded">
+                              <p className="text-slate-400 text-sm">Chart data available: {upload.analysis_data.spend_by_day.length} days</p>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Free Analysis message */}
+                        <div className="bg-blue-50 border border-blue-200 p-4 rounded">
+                          <h2 className="text-blue-800 font-semibold text-lg mb-2">Free Analysis Complete</h2>
+                          <p className="text-blue-700 mb-2">
+                            Your CSV has been analyzed. We've identified potential savings in your AI usage.
+                          </p>
+                          <p className="text-blue-700">
+                            Upgrade to Expert Audit for detailed recommendations and implementation guidance.
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      // FLOW 2: No CSV yet - Upload prompt
+                      <div>
+                        <h3 className="text-lg font-semibold text-white mb-4">Upload Your CSV for Free Analysis</h3>
+                        <p className="text-slate-400 mb-6">
+                          Upload your OpenAI usage CSV to get instant insights into your AI spending.
+                        </p>
+                        <div className="border-2 border-dashed border-slate-600 rounded-lg p-8">
+                          <div className="text-slate-400 mb-4">
+                            <FileText className="w-12 h-12 mx-auto mb-2" />
+                            <p className="text-sm">Drag and drop your CSV file here</p>
+                          </div>
+                          <p className="text-xs text-slate-500">
+                            Supported: OpenAI usage CSV files
+                          </p>
+                        </div>
+                        <p className="text-slate-400 mt-4 text-sm">
+                          Get instant analysis with 3 free savings recommendations.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                ) : conciergeStatus === 'pending' ? (
+                  // PAID USER: Expert Audit in progress
+                  <div className="text-center">
+                    {upload?.analysis_data ? (
+                      // FLOW 1: Has CSV already (analysis_data exists) - Show real parsed data
+                      <div className="space-y-6">
+                        {/* Show real numbers from analysis_data */}
+                        <div className="grid grid-cols-3 gap-4 mb-6">
+                          <div className="glass-strong p-4 rounded-xl border border-slate-800/80">
+                            <div className="text-sm text-slate-400">Total Spend</div>
+                            <div className="text-2xl font-bold text-white mt-1">
+                              ${upload.analysis_data.total_spend?.toFixed(2) || '0.00'}
+                            </div>
+                          </div>
+                          <div className="glass-strong p-4 rounded-xl border border-slate-800/80">
+                            <div className="text-sm text-slate-400">Total Requests</div>
+                            <div className="text-2xl font-bold text-white mt-1">
+                              {upload.analysis_data.total_requests?.toLocaleString() || '0'}
+                            </div>
+                          </div>
+                          <div className="glass-strong p-4 rounded-xl border border-slate-800/80">
+                            <div className="text-sm text-slate-400">Potential Savings</div>
+                            <div className="text-2xl font-bold text-emerald-400 mt-1">
+                              ${((upload.analysis_data.total_spend || 0) * 0.4).toFixed(2)}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Show charts if available */}
+                        {upload.analysis_data.spend_by_day && (
+                          <div className="mb-6">
+                            <h4 className="text-white font-semibold mb-3">Spending Over Time</h4>
+                            <div className="bg-slate-900/50 p-4 rounded">
+                              <p className="text-slate-400 text-sm">Chart data available: {upload.analysis_data.spend_by_day.length} days</p>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Expert Audit Confirmed message */}
+                        <div className="bg-green-50 border border-green-200 p-4 rounded">
+                          <h2 className="text-green-800 font-semibold text-lg mb-2">Expert Audit Confirmed</h2>
+                          <p className="text-green-700 mb-2">
+                            Thanks for submitting! Your expert analysis will be delivered in 48 hours.
+                          </p>
+                          <p className="text-green-700">
+                            Your CSV has been received and is being processed by our experts.
+                          </p>
+                        </div>
+                        
+                        <div className="mt-4">
+                          <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium">
+                            Expert Audit Pending • Delivery in 48 hours
+                          </span>
+                        </div>
+                      </div>
                     ) : (
                       // FLOW 2: No CSV yet (bought from pricing page)
                       <div>
@@ -403,12 +475,10 @@ export default function UploadDetailPage() {
                     )}
                   </div>
                 ) : (
+                  // DELIVERED or other status
                   <div className="text-center">
                     <p className="text-slate-400">
-                      {conciergeStatus === 'none' 
-                        ? 'Upload your OpenAI usage CSV to see analysis' 
-                        : 'Analysis results will be available after your CSV is processed'
-                      }
+                      Analysis results will be available after your CSV is processed
                     </p>
                   </div>
                 )}
