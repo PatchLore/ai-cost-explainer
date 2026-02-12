@@ -7,6 +7,14 @@ export type CsvUploadStatus =
 export type CsvUploadTier = "self_serve" | "concierge_pending" | "concierge_delivered";
 export type ConciergeStatus = CsvUploadTier | "none" | "pending";
 
+export interface AnalysisData {
+  total_spend: number;
+  total_requests: number;
+  top_models: { model: string; cost: number; tokens: number }[];
+  spend_by_day: { date: string; cost: number }[] | null;
+  recommendations: unknown[];
+}
+
 export interface CsvUpload {
   id: string;
   user_id: string;
@@ -16,7 +24,7 @@ export interface CsvUpload {
   provider: string;
   status: CsvUploadStatus;
   raw_data: unknown;
-  analysis_data: unknown;
+  analysis_data: AnalysisData | null;
   created_at: string;
   tier: CsvUploadTier;
   concierge_status: 'none' | 'pending' | 'delivered';
