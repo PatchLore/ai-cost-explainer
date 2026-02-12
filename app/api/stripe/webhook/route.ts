@@ -57,25 +57,67 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ received: true });
     }
 
-    // CHANGED: Use Service Role client for admin operations
-    // 1. Update csv_uploads (FIXED COLUMN NAME from 'tier' to 'concierge_status')
-    const { error: updateError } = await supabaseAdmin
-      .from("csv_uploads")
-      .update({
-        concierge_status: "pending",
-        stripe_checkout_id: session.id,
-      })
-      .eq("id", uploadId);
+    let finalUploadId = uploadId;
     
-    if (updateError) {
-      // CHANGED: Add debug logging to catch the exact Supabase error message
-      console.error("Failed to update csv_uploads:", updateError);
-      console.error("Error details:", {
-        code: updateError.code,
-        message: updateError.message,
-        details: updateError.details,
-        hint: updateError.hint
-      });
+    // CHANGED: Only create placeholder if uploadId is 'PENDING' (from pricing page)
+    if (uploadId === 'PENDING') {
+      // Create a placeholder upload record for pricing page purchases using Service Role client
+      console.log('Creating placeholder upload for pricing page purchase...');
+      
+      const { data: placeholder, error } = await supabaseAdmin
+        .from("csv_uploads")
+        .insert({
+          user_id: userId,
+          filename: "pending_audit",
+          original_name: "Pending Expert Audit",
+          storage_path: "pending",
+          file_size: 0,
+          content_type: "application/octet-stream",
+          status: "processing",
+          concierge_status: "pending",
+          analysis_data: {}, // ✅ ADD THIS - empty JSON object
+          stripe_checkout_id: session.id,
+        })
+        .select()
+        .single();
+
+      if (error || !placeholder) {
+        // CHANGED: Log the exact Supabase error object with all details
+        console.error("Failed to create placeholder upload:", error);
+        console.error("Error details:", {
+          code: error?.code,
+          message: error?.message,
+          details: error?.details,
+          hint: error?.hint,
+          fullError: error
+        });
+        
+        return NextResponse.json({ error: "Failed to create placeholder upload" }, { status: 500 });
+      }
+
+      finalUploadId = placeholder.id;
+      console.log("Created placeholder upload with ID:", finalUploadId);
+    } else {
+      // CHANGED: Use Service Role client for admin operations
+      // 1. Update existing csv_uploads (FIXED COLUMN NAME from 'tier' to 'concierge_status')
+      const { error: updateError } = await supabaseAdmin
+        .from("csv_uploads")
+        .update({
+          concierge_status: "pending",
+          stripe_checkout_id: session.id,
+        })
+        .eq("id", uploadId);
+      
+      if (updateError) {
+        // CHANGED: Add debug logging to catch the exact Supabase error message
+        console.error("Failed to update csv_uploads:", updateError);
+        console.error("Error details:", {
+          code: updateError.code,
+          message: updateError.message,
+          details: updateError.details,
+          hint: updateError.hint
+        });
+      }
     }
 
     // CHANGED: Use Service Role client for admin operations
@@ -83,7 +125,7 @@ export async function POST(req: NextRequest) {
     const { error: insertError } = await supabaseAdmin
       .from("concierge_deliverables")
       .insert({
-        upload_id: uploadId,
+        upload_id: finalUploadId,
         user_id: userId, // CHANGED: Add user_id (FK requirement)
         stripe_session_id: session.id,
         status: "pending",
@@ -99,7 +141,7 @@ export async function POST(req: NextRequest) {
         hint: insertError.hint
       });
     } else {
-      console.log("Successfully created concierge order for upload:", uploadId);
+      console.log("Successfully created concierge order for upload:", finalUploadId);
     }
 
     // 3. Send admin email notification

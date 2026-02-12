@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import type { CsvUpload } from "@/lib/types";
+import { CSVUploader } from "../components/CSVUploader";
 
 interface DashboardContentProps {
   user: any;
@@ -105,6 +106,19 @@ export function DashboardContent({ user }: DashboardContentProps) {
     <div className="space-y-8">
       <div className="space-y-4">
         <h1 className="text-2xl font-bold text-slate-800">Your Uploads & Audits</h1>
+
+        {/* Upload dropzone for free users */}
+        {(!uploads || uploads.length === 0 || uploads.every(u => u.concierge_status === 'none')) && (
+          <div className="bg-gradient-to-r from-slate-50 to-slate-100 border border-slate-200 rounded-xl p-6 mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-lg font-semibold text-slate-900">Upload Your OpenAI Usage CSV</h2>
+                <p className="text-sm text-slate-600">Free analysis • £299 for expert audit</p>
+              </div>
+            </div>
+            <CSVUploader userId={userId || ''} onComplete={onUploadComplete} />
+          </div>
+        )}
 
         <div className="flex justify-between items-start gap-6 mb-8">
           <div className="grid md:grid-cols-3 gap-6 flex-1">
