@@ -54,7 +54,9 @@ export default function UploadDetailPage() {
 
   // Check concierge status from concierge_status field
   const conciergeStatus = upload?.concierge_status || 'none';
-  const hasAnalysisData = analysis && analysis.total_spend > 0;
+  // Use upload.analysis_data as primary source, fallback to analysis query
+  const displayAnalysis = upload?.analysis_data || analysis;
+  const hasAnalysisData = displayAnalysis && (displayAnalysis.total_spend > 0 || displayAnalysis.total_requests > 0);
 
   const handleCheckout = async () => {
     if (!id) {
@@ -314,13 +316,13 @@ export default function UploadDetailPage() {
 
           {/* Center Column - Main Chart Area */}
           <div className="lg:col-span-2">
-            {analysis && analysis.total_spend > 0 ? (
+            {displayAnalysis && (displayAnalysis.total_spend > 0 || displayAnalysis.total_requests > 0) ? (
               <AnalysisViewer
-                totalSpend={analysis.total_spend}
-                totalRequests={analysis.total_requests}
-                topModels={analysis.top_models ?? []}
-                spendByDay={analysis.spend_by_day ?? undefined}
-                recommendations={(analysis.recommendations as Recommendation[]) ?? []}
+                totalSpend={displayAnalysis.total_spend}
+                totalRequests={displayAnalysis.total_requests}
+                topModels={displayAnalysis.top_models ?? []}
+                spendByDay={displayAnalysis.spend_by_day ?? undefined}
+                recommendations={(displayAnalysis.recommendations as Recommendation[]) ?? []}
               />
             ) : (
               <div className="glass-strong p-8 rounded-xl border border-slate-800/80 shadow-2xl shadow-black/50">
