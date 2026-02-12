@@ -106,8 +106,8 @@ export function DashboardContent({ user }: DashboardContentProps) {
       <div className="space-y-4">
         <h1 className="text-2xl font-bold text-slate-800">Your Uploads & Audits</h1>
 
-        <div className="flex justify-between items-center mb-6">
-          <div className="grid md:grid-cols-3 gap-6">
+        <div className="flex justify-between items-start gap-6 mb-8">
+          <div className="grid md:grid-cols-3 gap-6 flex-1">
             <div className="bg-slate-50 p-6 rounded-lg">
               <h3 className="font-semibold text-lg mb-3">CSV Analysis (Free)</h3>
               <ul className="space-y-2 text-sm text-slate-600">
@@ -136,7 +136,7 @@ export function DashboardContent({ user }: DashboardContentProps) {
             </div>
           </div>
 
-          <div className="ml-6">
+          <div className="bg-slate-50 p-6 rounded-lg border border-slate-200 min-w-[280px]">
             {(() => {
               const hasPendingAudit = uploads.some(u => u.concierge_status === 'pending');
               const hasDeliveredAudit = uploads.some(u => u.concierge_status === 'delivered');
@@ -144,9 +144,11 @@ export function DashboardContent({ user }: DashboardContentProps) {
               if (hasPendingAudit) {
                 // Hide button or show status
                 return (
-                  <div className="bg-amber-500/20 border border-amber-500/30 rounded-lg p-4">
-                    <span className="text-amber-400 font-semibold">Expert Audit in Progress</span>
-                    <p className="text-amber-300 text-sm mt-1">Your audit is being prepared. You'll be notified when ready.</p>
+                  <div className="text-center">
+                    <div className="bg-amber-500/20 border border-amber-500/30 rounded-lg p-4">
+                      <span className="text-amber-400 font-semibold">Expert Audit in Progress</span>
+                      <p className="text-amber-300 text-sm mt-1">Your audit is being prepared. You'll be notified when ready.</p>
+                    </div>
                   </div>
                 );
               }
@@ -156,11 +158,11 @@ export function DashboardContent({ user }: DashboardContentProps) {
                 return (
                   <div className="text-center">
                     <Link href="/pricing">
-                      <button className="bg-gradient-to-r from-violet-500 to-violet-600 hover:from-violet-400 hover:to-violet-500 text-white font-semibold px-6 py-3 rounded-lg transition-all hover-scale">
+                      <button className="bg-gradient-to-r from-violet-500 to-violet-600 hover:from-violet-400 hover:to-violet-500 text-white font-semibold px-6 py-3 rounded-lg transition-all hover-scale w-full">
                         New Analysis
                       </button>
                     </Link>
-                    <p className="text-sm text-gray-500 mt-2">
+                    <p className="text-sm text-gray-500 mt-2 leading-tight">
                       £299 per report • Email support@aispendaudit.com for bulk pricing (3+ audits)
                     </p>
                   </div>
@@ -169,11 +171,16 @@ export function DashboardContent({ user }: DashboardContentProps) {
 
               // Default case for regular CSV analysis users
               return (
-                <Link href="/upload">
-                  <button className="bg-gradient-to-r from-violet-500 to-violet-600 hover:from-violet-400 hover:to-violet-500 text-white font-semibold px-6 py-3 rounded-lg transition-all hover-scale">
-                    New Analysis
-                  </button>
-                </Link>
+                <div className="text-center">
+                  <Link href="/upload">
+                    <button className="bg-gradient-to-r from-violet-500 to-violet-600 hover:from-violet-400 hover:to-violet-500 text-white font-semibold px-6 py-3 rounded-lg transition-all hover-scale w-full">
+                      New Analysis
+                    </button>
+                  </Link>
+                  <p className="text-sm text-gray-500 mt-2">
+                    Start with free CSV analysis
+                  </p>
+                </div>
               );
             })()}
           </div>
@@ -194,23 +201,38 @@ export function DashboardContent({ user }: DashboardContentProps) {
             const uploadDate = new Date(upload.created_at).toLocaleDateString();
             
             return (
-              <div key={upload.id} className="glass-strong p-6 rounded-xl border border-slate-800/80 shadow-2xl shadow-black/50">
+              <div key={upload.id} className="glass-strong p-6 rounded-xl border border-slate-800/80 shadow-2xl shadow-black/50 hover:shadow-slate-900/20 transition-all hover:scale-[1.01]">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <div className={`w-3 h-3 rounded-full ${
                       type === 'csv_analysis' ? 'bg-blue-500' : 
                       type === 'pending_concierge' ? 'bg-amber-500' : 'bg-emerald-500'
                     }`}></div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-white">
-                        {type === 'csv_analysis' && 'CSV Analysis'}
-                        {type === 'pending_concierge' && 'Expert Audit (Pending)'}
-                        {type === 'delivered_concierge' && 'Expert Audit (Delivered)'}
-                      </h3>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-1">
+                        <h3 className="text-lg font-semibold text-white">
+                          {type === 'csv_analysis' && 'CSV Analysis'}
+                          {type === 'pending_concierge' && 'Expert Audit (Pending)'}
+                          {type === 'delivered_concierge' && 'Expert Audit (Delivered)'}
+                        </h3>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          type === 'csv_analysis' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
+                          type === 'pending_concierge' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' :
+                          'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                        }`}>
+                          {type === 'csv_analysis' && 'Free'}
+                          {type === 'pending_concierge' && 'Pending'}
+                          {type === 'delivered_concierge' && 'Delivered'}
+                        </span>
+                      </div>
                       <p className="text-slate-400 text-sm">
-                        {upload.filename ? `File: ${upload.filename}` : `Created: ${uploadDate}`}
+                        {upload.filename ? (
+                          <span className="font-medium text-white">{upload.filename}</span>
+                        ) : (
+                          <span>Created: {uploadDate}</span>
+                        )}
                         {upload.savings_estimate && (
-                          <span className="ml-2 text-emerald-400">
+                          <span className="ml-2 text-emerald-400 font-medium">
                             • Estimated savings: £{upload.savings_estimate.toFixed(2)}
                           </span>
                         )}
