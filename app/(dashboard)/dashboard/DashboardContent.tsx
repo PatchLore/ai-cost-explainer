@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
-import { CSVUploader } from "@/app/(dashboard)/components/CSVUploader";
 import type { CsvUpload } from "@/lib/types";
 
 interface DashboardContentProps {
@@ -107,43 +106,51 @@ export function DashboardContent({ user }: DashboardContentProps) {
       <div className="space-y-4">
         <h1 className="text-2xl font-bold text-slate-800">Your Uploads & Audits</h1>
 
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-slate-50 p-6 rounded-lg">
-            <h3 className="font-semibold text-lg mb-3">CSV Analysis (Free)</h3>
-            <ul className="space-y-2 text-sm text-slate-600">
-              <li>• Cost breakdown by model</li>
-              <li>• Spending trends over time</li>
-              <li>• 3 instant savings recommendations</li>
-            </ul>
+        <div className="flex justify-between items-center mb-6">
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="bg-slate-50 p-6 rounded-lg">
+              <h3 className="font-semibold text-lg mb-3">CSV Analysis (Free)</h3>
+              <ul className="space-y-2 text-sm text-slate-600">
+                <li>• Cost breakdown by model</li>
+                <li>• Spending trends over time</li>
+                <li>• 3 instant savings recommendations</li>
+              </ul>
+            </div>
+
+            <div className="bg-violet-50 p-6 rounded-lg border border-violet-200">
+              <h3 className="font-semibold text-lg mb-3 text-violet-900">Expert Audit (£299)</h3>
+              <ul className="space-y-2 text-sm text-violet-800">
+                <li>• Personal written audit report</li>
+                <li>• Specific migration plan</li>
+                <li>• 48-hour delivery guarantee</li>
+              </ul>
+            </div>
+
+            <div className="bg-emerald-50 p-6 rounded-lg border border-emerald-200">
+              <h3 className="font-semibold text-lg mb-3 text-emerald-900">What You Get</h3>
+              <ul className="space-y-2 text-sm text-emerald-800">
+                <li>• Clear cost optimization roadmap</li>
+                <li>• Code fixes & implementation guide</li>
+                <li>• Personal consultant support</li>
+              </ul>
+            </div>
           </div>
 
-          <div className="bg-violet-50 p-6 rounded-lg border border-violet-200">
-            <h3 className="font-semibold text-lg mb-3 text-violet-900">Expert Audit (£299)</h3>
-            <ul className="space-y-2 text-sm text-violet-800">
-              <li>• Personal written audit report</li>
-              <li>• Specific migration plan</li>
-              <li>• 48-hour delivery guarantee</li>
-            </ul>
-          </div>
-
-          <div className="bg-emerald-50 p-6 rounded-lg border border-emerald-200">
-            <h3 className="font-semibold text-lg mb-3 text-emerald-900">What You Get</h3>
-            <ul className="space-y-2 text-sm text-emerald-800">
-              <li>• Clear cost optimization roadmap</li>
-              <li>• Code fixes & implementation guide</li>
-              <li>• Personal consultant support</li>
-            </ul>
+          <div className="ml-6">
+            <Link href="/upload">
+              <button className="bg-gradient-to-r from-violet-500 to-violet-600 hover:from-violet-400 hover:to-violet-500 text-white font-semibold px-6 py-3 rounded-lg transition-all hover-scale">
+                New Analysis
+              </button>
+            </Link>
           </div>
         </div>
-
-        <CSVUploader userId={userId ?? ""} onComplete={onUploadComplete} />
       </div>
 
       {loading ? (
         <p className="text-slate-500">Loading uploads...</p>
       ) : uploads.length === 0 ? (
         <p className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-slate-600">
-          No uploads yet. Drop a CSV above to get started with your free analysis.
+          No uploads yet. Click "New Analysis" to get started with your free analysis.
         </p>
       ) : (
         <div className="space-y-6">
