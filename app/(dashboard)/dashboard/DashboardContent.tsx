@@ -115,16 +115,7 @@ export function DashboardContent({ user }: DashboardContentProps) {
         )}
 
         <div className="flex justify-between items-start gap-6 mb-8">
-          <div className="grid md:grid-cols-3 gap-6 flex-1">
-            <div className="bg-slate-50 p-6 rounded-lg">
-              <h3 className="font-semibold text-lg mb-3">CSV Analysis (Free)</h3>
-              <ul className="space-y-2 text-sm text-slate-600">
-                <li>• Cost breakdown by model</li>
-                <li>• Spending trends over time</li>
-                <li>• 3 instant savings recommendations</li>
-              </ul>
-            </div>
-
+          <div className="grid md:grid-cols-2 gap-6 flex-1">
             <div className="bg-violet-50 p-6 rounded-lg border border-violet-200">
               <h3 className="font-semibold text-lg mb-3 text-violet-900">Expert Audit (£299)</h3>
               <ul className="space-y-2 text-sm text-violet-800">
