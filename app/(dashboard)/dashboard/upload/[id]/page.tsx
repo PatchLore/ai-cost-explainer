@@ -274,7 +274,7 @@ export default function UploadDetailPage() {
                 <div>
                   <p className="text-sm text-slate-400">Total Spend</p>
                   <p className="text-3xl font-bold text-white mt-1">
-                    ${analysis?.total_spend.toFixed(2) || '0.00'}
+                    ${upload.analysis_data?.total_spend?.toFixed(2) || analysis?.total_spend.toFixed(2) || '0.00'}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg flex items-center justify-center">
@@ -288,7 +288,7 @@ export default function UploadDetailPage() {
                 <div>
                   <p className="text-sm text-slate-400">Total Requests</p>
                   <p className="text-3xl font-bold text-white mt-1">
-                    {analysis?.total_requests.toLocaleString() || '0'}
+                    {upload.analysis_data?.total_requests?.toLocaleString() || analysis?.total_requests.toLocaleString() || '0'}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-gradient-to-br from-violet-500 to-violet-600 rounded-lg flex items-center justify-center">
@@ -302,7 +302,7 @@ export default function UploadDetailPage() {
                 <div>
                   <p className="text-sm text-slate-400">Potential Savings</p>
                   <p className="text-3xl font-bold text-emerald-400 mt-1">
-                    ${((analysis?.total_spend || 0) * 0.4).toFixed(2)}
+                    ${((upload.analysis_data?.total_spend || analysis?.total_spend || 0) * 0.4).toFixed(2)}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg flex items-center justify-center">
