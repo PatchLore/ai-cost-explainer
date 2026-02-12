@@ -80,11 +80,25 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: "Upload not found" }, { status: 404 });
       }
 
+      // Update EXISTING upload's concierge_status to 'pending'
+      const { error: updateError } = await supabaseAdmin
+        .from("csv_uploads")
+        .update({ 
+          concierge_status: "pending",
+          stripe_checkout_id: null // Will be set after session creation
+        })
+        .eq("id", uploadId);
+
+      if (updateError) {
+        console.error("Failed to update existing upload:", updateError);
+        return NextResponse.json({ error: "Failed to update upload status" }, { status: 500 });
+      }
+
       verifiedUploadId = uploadId;
       successUrl = `${baseUrl}/dashboard/upload/${uploadId}?paid=true`;
       cancelUrl = `${baseUrl}/dashboard/upload/${uploadId}?canceled=true`;
     } else {
-      // CHANGED: Create a placeholder upload record for pricing page purchases using Service Role client
+      // Create a placeholder upload record for pricing page purchases using Service Role client
       console.log('Service Role client exists:', !!supabaseAdmin);
       console.log('SUPABASE_SERVICE_ROLE_KEY exists:', !!process.env.SUPABASE_SERVICE_ROLE_KEY);
       
