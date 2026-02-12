@@ -137,11 +137,45 @@ export function DashboardContent({ user }: DashboardContentProps) {
           </div>
 
           <div className="ml-6">
-            <Link href="/upload">
-              <button className="bg-gradient-to-r from-violet-500 to-violet-600 hover:from-violet-400 hover:to-violet-500 text-white font-semibold px-6 py-3 rounded-lg transition-all hover-scale">
-                New Analysis
-              </button>
-            </Link>
+            {(() => {
+              const hasPendingAudit = uploads.some(u => u.concierge_status === 'pending');
+              const hasDeliveredAudit = uploads.some(u => u.concierge_status === 'delivered');
+
+              if (hasPendingAudit) {
+                // Hide button or show status
+                return (
+                  <div className="bg-amber-500/20 border border-amber-500/30 rounded-lg p-4">
+                    <span className="text-amber-400 font-semibold">Expert Audit in Progress</span>
+                    <p className="text-amber-300 text-sm mt-1">Your audit is being prepared. You'll be notified when ready.</p>
+                  </div>
+                );
+              }
+
+              if (hasDeliveredAudit || uploads.length === 0) {
+                // Show button linking to pricing
+                return (
+                  <div className="text-center">
+                    <Link href="/pricing">
+                      <button className="bg-gradient-to-r from-violet-500 to-violet-600 hover:from-violet-400 hover:to-violet-500 text-white font-semibold px-6 py-3 rounded-lg transition-all hover-scale">
+                        New Analysis
+                      </button>
+                    </Link>
+                    <p className="text-sm text-gray-500 mt-2">
+                      £299 per report • Email support@aispendaudit.com for bulk pricing (3+ audits)
+                    </p>
+                  </div>
+                );
+              }
+
+              // Default case for regular CSV analysis users
+              return (
+                <Link href="/upload">
+                  <button className="bg-gradient-to-r from-violet-500 to-violet-600 hover:from-violet-400 hover:to-violet-500 text-white font-semibold px-6 py-3 rounded-lg transition-all hover-scale">
+                    New Analysis
+                  </button>
+                </Link>
+              );
+            })()}
           </div>
         </div>
       </div>
