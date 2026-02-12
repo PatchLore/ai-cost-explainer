@@ -326,58 +326,58 @@ export default function UploadDetailPage() {
               <div className="glass-strong p-8 rounded-xl border border-slate-800/80 shadow-2xl shadow-black/50">
                 {conciergeStatus === 'pending' ? (
                   <div className="text-center">
-                    {upload?.analysis_data ? (
-                      // FLOW 1: Has CSV already (analysis_data exists) - Show real parsed data
-                      <div className="space-y-6">
-                        {/* Show real numbers from analysis_data */}
-                        <div className="grid grid-cols-3 gap-4 mb-6">
-                          <div className="glass-strong p-4 rounded-xl border border-slate-800/80">
-                            <div className="text-sm text-slate-400">Total Spend</div>
-                            <div className="text-2xl font-bold text-white mt-1">
-                              ${upload.analysis_data.total_spend?.toFixed(2) || '0.00'}
+                        {upload?.analysis_data ? (
+                          // FLOW 1: Has CSV already (analysis_data exists) - Show real parsed data
+                          <div className="space-y-6">
+                            {/* Show real numbers from analysis_data */}
+                            <div className="grid grid-cols-3 gap-4 mb-6">
+                              <div className="glass-strong p-4 rounded-xl border border-slate-800/80">
+                                <div className="text-sm text-slate-400">Total Spend</div>
+                                <div className="text-2xl font-bold text-white mt-1">
+                                  ${upload.analysis_data.total_spend?.toFixed(2) || '0.00'}
+                                </div>
+                              </div>
+                              <div className="glass-strong p-4 rounded-xl border border-slate-800/80">
+                                <div className="text-sm text-slate-400">Total Requests</div>
+                                <div className="text-2xl font-bold text-white mt-1">
+                                  {upload.analysis_data.total_requests?.toLocaleString() || '0'}
+                                </div>
+                              </div>
+                              <div className="glass-strong p-4 rounded-xl border border-slate-800/80">
+                                <div className="text-sm text-slate-400">Potential Savings</div>
+                                <div className="text-2xl font-bold text-emerald-400 mt-1">
+                                  ${((upload.analysis_data.total_spend || 0) * 0.4).toFixed(2)}
+                                </div>
+                              </div>
                             </div>
-                          </div>
-                          <div className="glass-strong p-4 rounded-xl border border-slate-800/80">
-                            <div className="text-sm text-slate-400">Total Requests</div>
-                            <div className="text-2xl font-bold text-white mt-1">
-                              {upload.analysis_data.total_requests?.toLocaleString() || '0'}
-                            </div>
-                          </div>
-                          <div className="glass-strong p-4 rounded-xl border border-slate-800/80">
-                            <div className="text-sm text-slate-400">Potential Savings</div>
-                            <div className="text-2xl font-bold text-emerald-400 mt-1">
-                              ${((upload.analysis_data.total_spend || 0) * 0.4).toFixed(2)}
-                            </div>
-                          </div>
-                        </div>
 
-                        {/* Show charts if available */}
-                        {upload.analysis_data.spend_by_day && (
-                          <div className="mb-6">
-                            <h4 className="text-white font-semibold mb-3">Spending Over Time</h4>
-                            <div className="bg-slate-900/50 p-4 rounded">
-                              <p className="text-slate-400 text-sm">Chart data available: {upload.analysis_data.spend_by_day.length} days</p>
+                            {/* Show charts if available */}
+                            {upload.analysis_data.spend_by_day && (
+                              <div className="mb-6">
+                                <h4 className="text-white font-semibold mb-3">Spending Over Time</h4>
+                                <div className="bg-slate-900/50 p-4 rounded">
+                                  <p className="text-slate-400 text-sm">Chart data available: {upload.analysis_data.spend_by_day.length} days</p>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Expert Audit Confirmed message */}
+                            <div className="bg-green-50 border border-green-200 p-4 rounded">
+                              <h2 className="text-green-800 font-semibold text-lg mb-2">Expert Audit Confirmed</h2>
+                              <p className="text-green-700 mb-2">
+                                Thanks for submitting! Your expert analysis will be delivered in 48 hours.
+                              </p>
+                              <p className="text-green-700">
+                                Your CSV has been received and is being processed by our experts.
+                              </p>
+                            </div>
+                            
+                            <div className="mt-4">
+                              <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium">
+                                Expert Audit Pending • Delivery in 48 hours
+                              </span>
                             </div>
                           </div>
-                        )}
-
-                        {/* Expert Audit Confirmed message */}
-                        <div className="bg-green-50 border border-green-200 p-4 rounded">
-                          <h2 className="text-green-800 font-semibold text-lg mb-2">Expert Audit Confirmed</h2>
-                          <p className="text-green-700 mb-2">
-                            Thanks for submitting! Your expert analysis will be delivered in 48 hours.
-                          </p>
-                          <p className="text-green-700">
-                            Your CSV has been received and is being processed by our experts.
-                          </p>
-                        </div>
-                        
-                        <div className="mt-4">
-                          <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium">
-                            Expert Audit Pending • Delivery in 48 hours
-                          </span>
-                        </div>
-                      </div>
                     ) : (
                       // FLOW 2: No CSV yet (bought from pricing page)
                       <div>
