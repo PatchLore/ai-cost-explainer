@@ -326,19 +326,41 @@ export default function UploadDetailPage() {
               <div className="glass-strong p-8 rounded-xl border border-slate-800/80 shadow-2xl shadow-black/50">
                 {conciergeStatus === 'pending' ? (
                   <div className="text-center">
-                    <h3 className="text-lg font-semibold text-white mb-4">Upload your OpenAI usage CSV for Expert Analysis</h3>
-                    <p className="text-slate-400 mb-6">
-                      Your Expert Audit is ready. Upload your CSV file to begin the detailed analysis process.
-                    </p>
-                    <div className="border-2 border-dashed border-slate-600 rounded-lg p-8">
-                      <div className="text-slate-400 mb-4">
-                        <FileText className="w-12 h-12 mx-auto mb-2" />
-                        <p className="text-sm">Drag and drop your CSV file here</p>
+                    {upload?.analysis_data ? (
+                      // FLOW 1: Has CSV already (analysis_data exists)
+                      <div>
+                        <h3 className="text-lg font-semibold text-white mb-4">Expert Audit Confirmed</h3>
+                        <p className="text-slate-400 mb-6">
+                          Thanks for submitting! Your expert analysis will be delivered in 48 hours.
+                        </p>
+                        <p className="text-slate-400 mb-6">
+                          You'll receive an email when your audit is ready.
+                        </p>
+                        <div className="bg-slate-900/50 p-4 rounded text-sm text-slate-300">
+                          Your CSV has been received and is being processed by our experts.
+                        </div>
                       </div>
-                      <p className="text-xs text-slate-500">
-                        Supported: OpenAI usage CSV files
-                      </p>
-                    </div>
+                    ) : (
+                      // FLOW 2: No CSV yet (bought from pricing page)
+                      <div>
+                        <h3 className="text-lg font-semibold text-white mb-4">Upload Your CSV for Expert Analysis</h3>
+                        <p className="text-slate-400 mb-6">
+                          Your Expert Audit slot is reserved. Upload your OpenAI usage CSV to begin.
+                        </p>
+                        <div className="border-2 border-dashed border-slate-600 rounded-lg p-8">
+                          <div className="text-slate-400 mb-4">
+                            <FileText className="w-12 h-12 mx-auto mb-2" />
+                            <p className="text-sm">Drag and drop your CSV file here</p>
+                          </div>
+                          <p className="text-xs text-slate-500">
+                            Supported: OpenAI usage CSV files
+                          </p>
+                        </div>
+                        <p className="text-slate-400 mt-4 text-sm">
+                          48-hour delivery begins after upload.
+                        </p>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="text-center">
