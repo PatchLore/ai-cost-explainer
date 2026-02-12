@@ -75,12 +75,6 @@ export default function RootLayout({
               <nav aria-label="User navigation" className="hidden sm:flex items-center gap-2">
                 {user ? (
                   <>
-                    <Link 
-                      href="/dashboard" 
-                      className="px-3 py-2 text-sm text-slate-300 hover:text-white transition-colors"
-                    >
-                      Dashboard
-                    </Link>
                     <button 
                       onClick={() => {
                         const supabase = createBrowserSupabaseClient();
@@ -137,15 +131,8 @@ export default function RootLayout({
                   Dashboard
                 </Link>
                 <div className="pt-2 border-t border-slate-800/50 space-y-2">
-                  {user ? (
+                {user ? (
                     <>
-                      <Link 
-                        href="/dashboard" 
-                        className="block px-4 py-3 text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        Dashboard
-                      </Link>
                       <button 
                         onClick={() => {
                           const supabase = createBrowserSupabaseClient();

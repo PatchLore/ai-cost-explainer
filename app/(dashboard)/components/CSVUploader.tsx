@@ -198,14 +198,14 @@ export function CSVUploader({ userId, onComplete }: CSVUploaderProps) {
               {uploading ? (
                 <Loader2 className="w-12 h-12 text-violet-400 animate-spin" />
               ) : (
-                <Upload className="w-12 h-12 text-slate-400" />
+                <Upload className="w-12 h-12 text-slate-600" />
               )}
             </div>
             <div>
-              <p className="text-slate-300 font-medium">
+              <p className="text-slate-700 font-medium">
                 {uploading ? 'Uploading file...' : 'Drag and drop your CSV file here'}
               </p>
-              <p className="text-slate-500 text-sm mt-1">
+              <p className="text-slate-600 text-sm mt-1">
                 {uploading ? `Processing ${uploadProgress}%` : 'or click to browse'}
               </p>
             </div>

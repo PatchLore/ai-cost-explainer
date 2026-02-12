@@ -110,12 +110,6 @@ export function DashboardContent({ user }: DashboardContentProps) {
         {/* Upload dropzone for free users */}
         {(!uploads || uploads.length === 0 || uploads.every(u => u.concierge_status === 'none')) && (
           <div className="bg-gradient-to-r from-slate-50 to-slate-100 border border-slate-200 rounded-xl p-6 mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h2 className="text-lg font-semibold text-slate-900">Upload Your OpenAI Usage CSV</h2>
-                <p className="text-sm text-slate-600">Free analysis • £299 for expert audit</p>
-              </div>
-            </div>
             <CSVUploader userId={userId || ''} onComplete={onUploadComplete} />
           </div>
         )}
@@ -167,8 +161,8 @@ export function DashboardContent({ user }: DashboardContentProps) {
                 );
               }
 
-              if (hasDeliveredAudit || uploads.length === 0) {
-                // Show button linking to pricing
+              if (hasDeliveredAudit) {
+                // Show button linking to pricing for users with delivered audits
                 return (
                   <div className="text-center">
                     <Link href="/pricing">
@@ -181,6 +175,11 @@ export function DashboardContent({ user }: DashboardContentProps) {
                     </p>
                   </div>
                 );
+              }
+
+              if (uploads.length === 0) {
+                // Hide button for users with no uploads
+                return null;
               }
 
               // Default case for regular CSV analysis users
